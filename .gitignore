@@ -1,0 +1,7 @@
+*.o
+*.out
+*.ini
+*.dat
+*.plt
+.vscode
+run.sh
