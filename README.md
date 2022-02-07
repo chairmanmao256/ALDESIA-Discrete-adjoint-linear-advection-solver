@@ -8,6 +8,7 @@ AeroDAT is a tiny toy software developed by Chenyu Wu of AeroLab, School of Aero
 
 AeroDAT can now solve convection diffusion problem in a 2-D rectangular domain using rectangular grid with mixed 2nd-order central and 1st-order upwind algorithm (the primal solver). The equation solved can be written as:
 <img src="./Eq.png" style="zoom:33%;" />
+
 It can also derive the Jacobian of the primal solver. 
 
 The picture below is the phi distribution in a square. The boundary value of phi is set to zero and there's a source located at the center of the domain. The velocity points in south-east direction.
