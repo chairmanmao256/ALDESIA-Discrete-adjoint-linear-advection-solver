@@ -7,16 +7,14 @@ AeroDAT is a tiny toy software developed by Chenyu Wu of AeroLab, School of Aero
 ## Capabilities
 
 AeroDAT can now solve convection diffusion problem in a 2-D rectangular domain using rectangular grid with mixed 2nd-order central and 1st-order upwind algorithm (the primal solver). The equation solved can be written as:
-$$
-\nabla\cdot(\mathbf{u}\phi)=\nabla\cdot(\nu\nabla\phi) + S
-$$
+<img src="./Eq.png" style="zoom:33%;" />
 It can also derive the Jacobian of the primal solver. 
 
-The picture below is the $\phi$ distribution in a square. The boundary value of $\phi$ is set to zero and there's a source located at the center of the domain. The velocity points in south-east direction.
+The picture below is the phi distribution in a square. The boundary value of phi is set to zero and there's a source located at the center of the domain. The velocity points in south-east direction.
 
 <img src="./RecSource.jpg" style="zoom:33%;" />
 
-The Jacobian of the primal solver is computed by forward mode AD of CoDiPack. Now the full Jacobian can be written in an ASCII file `dRdTJac.dat` (which would be too huge to afford when the number of grid points is large). The Jacobian of the primal solver using a $3\times3$ grid when the convection velocity is set to zero is:
+The Jacobian of the primal solver is computed by forward mode AD of CoDiPack. Now the full Jacobian can be written in an ASCII file `dRdTJac.dat` (which would be too huge to afford when the number of grid points is large). The Jacobian of the primal solver using a 3 * 3 grid when the convection velocity is set to zero is:
 
 ```
 -0.04000 0.01000 0.00000 0.01000 0.00000 0.00000 0.00000 0.00000 0.00000 
