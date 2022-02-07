@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <codi.hpp>
 #include "config/ConfigMap.h"
 #include "field/volScalarField.h"
 #include "field/volVectorField.h"
@@ -8,12 +9,10 @@
 #include "writer/writePlt.h"
 #include "writer/writeJac.h"
 #include "Residual/CDSolverResidual.h"
-#include <codi.hpp>
-
-using namespace std;
 
 int main(int argc, char** argv)
 {
+    using namespace std;
     if(argc != 2){
         cout<<"Wrong argument number!\n";
         cout<<"Usage: ./main.out <inputFileName>\n";
@@ -75,11 +74,26 @@ int main(int argc, char** argv)
     // write the outcome
     writePlt(T_, nu_, S_, U_, Mesh_);
 
-    // compute the Jacobian
+    // compute the Jacobian, brute-force
     codi::Jacobian<double> jac = CDSolverResidual(T_, nu_, S_, U_, Mesh_);
 
     // write the Jacobian
-    writeJac(jac, Mesh_);
+    string fname = {"dRdW.dat"};
+    writeJac(jac, Mesh_, fname);
+
+    // compute the Jacobian, graph-coloring is implemented
+    codi::Jacobian<double> jac2 = CDSolverResidualColored(T_, nu_, S_, U_, Mesh_);
+
+    // write the Jacobian
+    string fname2 = {"dRdWColored.dat"};
+    writeJac(jac2, Mesh_, fname2);
+
+    // check the consistency between the Jacobian using graph-coloring and the brute-force Jacobian
+    for(int i = 0; i < nx * ny; i++){
+        for(int j = 0; j < nx*ny; j++){
+            if(abs(jac2(i,j) - jac(i,j)) > 1e-5) {cout<<"error!\n"; break;}
+        }
+    }
 
     return 0;
 }

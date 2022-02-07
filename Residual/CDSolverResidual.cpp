@@ -9,9 +9,14 @@
 using namespace std;
 using Real = codi::RealForward;
 
+// cacluate the residual of the primal solver
 void CDResidual(Real* x, Real* y, size_t nx, size_t ny, double dx, double dy, double vol, 
 volVectorField& U, volScalarField& nu, volScalarField& S);
 
+// convert the Jacobian's index into the matching x,y array index
+size_t jacIndexToArrayIndex(size_t jacIndex, size_t nx, size_t ny);
+
+// brute-force forward AD
 codi::Jacobian<double> CDSolverResidual(volScalarField& T, volScalarField& nu, volScalarField& S,
 volVectorField& U, mesh& Mesh)
 {
@@ -65,6 +70,97 @@ volVectorField& U, mesh& Mesh)
     return jacobian;
 }
 
+// forward AD using graph coloring, the number of evaluation ~ ny
+codi::Jacobian<double> CDSolverResidualColored(volScalarField& T, volScalarField& nu, volScalarField& S,
+volVectorField& U, mesh& Mesh)
+{
+    // get the dimension of the mesh
+    int nx = Mesh.getNx(), ny = Mesh.getNy(), t = 0;
+    double dx = Mesh.dx, dy = Mesh.dy, vol = Mesh.vol;
+    int pIndex, nIndex, sIndex, eIndex, wIndex;
+    int ppIndex, nnIndex, ssIndex, eeIndex, wwIndex;
+    double Fs, Fn, Fw, Fe, Ds, Dn, De, Dw, as, an, ae, aw, ap;
+
+    // initialize the FORWARD Real class for derivative computation, and assign the value
+    Real* y = new Real[(nx + 2) * (ny + 2)];
+    Real* x = new Real[(nx + 2) * (ny + 2)];
+    
+    for(size_t j = 0; j < ny + 2; j++){
+        for(size_t i = 0; i < nx + 2; i++){
+            x[i + j * (nx + 2)] = T[i][j];
+        }
+    }
+
+    // initialize the full Jacobian
+    codi::Jacobian<double> jacobian(nx*ny,nx*ny);
+
+    // compute the full Jacobian. Only nx + 2 colors are needed
+    
+    for (size_t i = 0; i < nx + 2; i++){
+        // reset t to 0
+        t = 0;
+
+        // activate all the columns whose index equals to i when % by nx + 2
+        while (i + t*(nx + 2) < nx*ny)
+        {
+            ppIndex = jacIndexToArrayIndex(i + t*(nx + 2), nx, ny);
+            x[ppIndex].gradient() = 1.0; t++;
+        }
+
+        // reset t to 0
+        t = 0;
+
+        CDResidual(x, y, nx, ny, dx, dy, vol, U, nu, S);
+
+        // assign the derivatives
+        while (i + t*(nx + 2) < nx*ny)
+        {
+            ppIndex = jacIndexToArrayIndex(i + t*(nx + 2), nx, ny);
+            // diagnoal element
+            jacobian(i + t*(nx + 2), i + t*(nx + 2)) = y[ppIndex].getGradient();
+
+            // off diagnoal elements
+            nIndex = i + t*(nx + 2) + nx;
+            sIndex = i + t*(nx + 2) - nx;
+            eIndex = i + t*(nx + 2) + 1;
+            wIndex = i + t*(nx + 2) - 1;
+
+            // convert to x,y array index
+            nnIndex = jacIndexToArrayIndex(nIndex, nx, ny);
+            ssIndex = jacIndexToArrayIndex(sIndex, nx, ny);
+            eeIndex = jacIndexToArrayIndex(eIndex, nx, ny);
+            wwIndex = jacIndexToArrayIndex(wIndex, nx, ny);
+
+            if (nIndex < nx * ny && nIndex >= 0) {jacobian(nIndex, i + t*(nx + 2)) = y[nnIndex].getGradient();}
+            if (sIndex < nx * ny && sIndex >= 0) {jacobian(sIndex, i + t*(nx + 2)) = y[ssIndex].getGradient();}
+            if (eIndex < nx * ny && eIndex >= 0) {jacobian(eIndex, i + t*(nx + 2)) = y[eeIndex].getGradient();}
+            if (wIndex < nx * ny && wIndex >= 0) {jacobian(wIndex, i + t*(nx + 2)) = y[wwIndex].getGradient();}
+
+            t++;
+        }
+
+        // reset t to 0
+        t = 0;
+
+        // deactivate all the columns whose index equals to i when % by 3
+        while (i + t*(nx + 2) < nx*ny)
+        {
+            ppIndex = jacIndexToArrayIndex(i + t*(nx + 2), nx, ny);
+            x[ppIndex].gradient() = 0.0; t++;
+        }  
+
+        // reset t to 0
+        t = 0;     
+    }
+
+    delete [] y;
+    delete [] x;
+
+    cout<<"Jacobian computation completed!\n";
+
+    return jacobian;
+}
+
 void CDResidual(Real* x, Real* y, size_t nx, size_t ny, double dx, double dy, double vol, 
 volVectorField& U, volScalarField& nu, volScalarField& S){
 
@@ -100,4 +196,13 @@ volVectorField& U, volScalarField& nu, volScalarField& S){
             y[pIndex] = vol*S[i][j] + as * x[sIndex] + an * x[nIndex] + ae * x[eIndex] + aw * x[wIndex] - ap * x[pIndex];
     }
   }
+}
+
+size_t jacIndexToArrayIndex(size_t jacIndex, size_t nx, size_t ny){
+    size_t ii, tt;
+    ii = jacIndex % nx;
+    tt = (jacIndex - ii) / nx;
+    ii++;
+    tt++;
+    return ii + tt*(nx + 2);
 }

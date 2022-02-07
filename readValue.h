@@ -3,11 +3,11 @@ double box[4],dx,dy,dpIni, UXIni, UYIni, nuIni, SIni, omega, tol, maxIter;
 double BCvalue_[4];
 double BCvalueZeroGradient[4] = {0.0, 0.0, 0.0, 0.0};
 double BCvalueVelocityX_[4],BCvalueVelocityY_[4];
-string BCtype_[4];
-string BCtypeZeroGradient[4] = {"fixedGradient","fixedGradient","fixedGradient","fixedGradient"};
-string BCtypeVelocity_[4];
-string dependentScalar, diffusitivity, source;
-string velocity;
+std::string BCtype_[4];
+std::string BCtypeZeroGradient[4] = {"fixedGradient","fixedGradient","fixedGradient","fixedGradient"};
+std::string BCtypeVelocity_[4];
+std::string dependentScalar, diffusitivity, source;
+std::string velocity;
 
 nx = test.getInteger("dimension","nx",10);
 ny = test.getInteger("dimension","ny",10);
