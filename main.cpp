@@ -75,14 +75,14 @@ int main(int argc, char** argv)
     writePlt(T_, nu_, S_, U_, Mesh_);
 
     // compute the Jacobian, brute-force
-    codi::Jacobian<double> jac = CDSolverResidual(T_, nu_, S_, U_, Mesh_);
+    codi::Jacobian<double> jac = dRdWBruteForce(T_, nu_, S_, U_, Mesh_);
 
     // write the Jacobian
     string fname = {"dRdW.dat"};
     writeJac(jac, Mesh_, fname);
 
     // compute the Jacobian, graph-coloring is implemented
-    codi::Jacobian<double> jac2 = CDSolverResidualColored(T_, nu_, S_, U_, Mesh_);
+    codi::Jacobian<double> jac2 = dRdWColored(T_, nu_, S_, U_, Mesh_);
 
     // write the Jacobian
     string fname2 = {"dRdWColored.dat"};

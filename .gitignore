@@ -4,4 +4,6 @@
 *.dat
 *.plt
 .vscode
+ADTest
+tests
 run.sh

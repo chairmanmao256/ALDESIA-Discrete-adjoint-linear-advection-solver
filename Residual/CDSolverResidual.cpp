@@ -1,23 +1,17 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
+#include <codi.hpp>
 #include "../field/volScalarField.h"
 #include "../field/volVectorField.h"
 #include "../field/mesh.h"
-#include <codi.hpp>
+#include "CDSolverResidual.h"
 
 using namespace std;
 using Real = codi::RealForward;
 
-// cacluate the residual of the primal solver
-void CDResidual(Real* x, Real* y, size_t nx, size_t ny, double dx, double dy, double vol, 
-volVectorField& U, volScalarField& nu, volScalarField& S);
-
-// convert the Jacobian's index into the matching x,y array index
-size_t jacIndexToArrayIndex(size_t jacIndex, size_t nx, size_t ny);
-
 // brute-force forward AD
-codi::Jacobian<double> CDSolverResidual(volScalarField& T, volScalarField& nu, volScalarField& S,
+codi::Jacobian<double> dRdWBruteForce(volScalarField& T, volScalarField& nu, volScalarField& S,
 volVectorField& U, mesh& Mesh)
 {
     // get the dimension of the mesh
@@ -70,8 +64,8 @@ volVectorField& U, mesh& Mesh)
     return jacobian;
 }
 
-// forward AD using graph coloring, the number of evaluation ~ ny
-codi::Jacobian<double> CDSolverResidualColored(volScalarField& T, volScalarField& nu, volScalarField& S,
+// forward AD using graph coloring, the number of evaluation = nx + 2
+codi::Jacobian<double> dRdWColored(volScalarField& T, volScalarField& nu, volScalarField& S,
 volVectorField& U, mesh& Mesh)
 {
     // get the dimension of the mesh
@@ -161,6 +155,7 @@ volVectorField& U, mesh& Mesh)
     return jacobian;
 }
 
+// cacluate the residual of the primal solver
 void CDResidual(Real* x, Real* y, size_t nx, size_t ny, double dx, double dy, double vol, 
 volVectorField& U, volScalarField& nu, volScalarField& S){
 
@@ -198,6 +193,7 @@ volVectorField& U, volScalarField& nu, volScalarField& S){
   }
 }
 
+// convert the Jacobian's index into the matching x,y array index
 size_t jacIndexToArrayIndex(size_t jacIndex, size_t nx, size_t ny){
     size_t ii, tt;
     ii = jacIndex % nx;
