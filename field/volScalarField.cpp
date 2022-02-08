@@ -109,3 +109,34 @@ void volScalarField::correctBoundary()
         std::cout<<"fixedValue\n"<<"fixedGradient\n";
     }
 }
+
+int volScalarField::getNeighbor(int i, int j, const std::string direction)
+{
+    // check the index range
+    if (i < 1 || i > nx || j < 1 || j > ny){
+        std::cout<<"You can only use internal points' index!\n";
+        return -1;
+    }
+
+    // decide which direction is consulted
+    if(direction.compare("south")==0){
+        if (j == 1 && BCtype[0].compare("fixedGradient") == 0) {return i + j * (nx + 2);}
+        else{return i + (j - 1) * (nx + 2);}
+    }
+    else if(direction.compare("north")==0){
+        if (j == ny && BCtype[1].compare("fixedGradient") == 0) {return i + j * (nx + 2);}
+        else{return i + (j + 1) * (nx + 2);}
+    }
+    else if(direction.compare("west")==0){
+        if (i == 1 && BCtype[2].compare("fixedGradient") == 0) {return i + j * (nx + 2);}
+        else{return i - 1 + j * (nx + 2);}
+    }
+    else if(direction.compare("east")==0){
+        if (i == nx && BCtype[3].compare("fixedGradient") == 0) {return i + j * (nx + 2);}
+        else{return i + 1 + j * (nx + 2);}
+    }
+    else{
+        std::cout<<"Error! Use 'south, north, west, east' to define direction!"<<"\n";
+        return -1;
+    }
+}

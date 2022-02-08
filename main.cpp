@@ -9,6 +9,7 @@
 #include "writer/writePlt.h"
 #include "writer/writeJac.h"
 #include "Residual/CDSolverResidual.h"
+#include "ObjFuncs/averageT.h"
 
 int main(int argc, char** argv)
 {
@@ -79,14 +80,14 @@ int main(int argc, char** argv)
 
     // write the Jacobian
     string fname = {"dRdW.dat"};
-    writeJac(jac, Mesh_, fname);
+    writeJac(jac, fname);
 
     // compute the Jacobian, graph-coloring is implemented
     codi::Jacobian<double> jac2 = dRdWColored(T_, nu_, S_, U_, Mesh_);
 
     // write the Jacobian
     string fname2 = {"dRdWColored.dat"};
-    writeJac(jac2, Mesh_, fname2);
+    writeJac(jac2, fname2);
 
     // check the consistency between the Jacobian using graph-coloring and the brute-force Jacobian
     for(int i = 0; i < nx * ny; i++){
@@ -94,6 +95,14 @@ int main(int argc, char** argv)
             if(abs(jac2(i,j) - jac(i,j)) > 1e-5) {cout<<"error!\n"; break;}
         }
     }
+
+    // compute the objective function F and dFdW
+    codi::Jacobian<double> JacdFdW = dFdW(T_, U_, nu_, S_, Mesh_);
+
+    // write dFdW
+    string fname3 = {"dFdW.dat"};
+    writeJac(JacdFdW, fname3);
+
 
     return 0;
 }

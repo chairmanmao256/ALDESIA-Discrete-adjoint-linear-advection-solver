@@ -23,5 +23,10 @@ cd Residual
 make all
 cd ..
 
+# compile the objective functions
+cd ObjFuncs
+make all
+cd ..
+
 # link all the objs and compile the main program
 make all

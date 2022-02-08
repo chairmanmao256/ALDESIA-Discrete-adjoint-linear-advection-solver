@@ -8,7 +8,7 @@ using Real = codi::RealForward;
 
 // cacluate the residual of the primal solver
 void CDResidual(Real* x, Real* y, size_t nx, size_t ny, double dx, double dy, double vol, 
-volVectorField& U, volScalarField& nu, volScalarField& S);
+volScalarField& T, volVectorField& U, volScalarField& nu, volScalarField& S);
 
 // convert the Jacobian's index into the matching x,y array index
 size_t jacIndexToArrayIndex(size_t jacIndex, size_t nx, size_t ny);

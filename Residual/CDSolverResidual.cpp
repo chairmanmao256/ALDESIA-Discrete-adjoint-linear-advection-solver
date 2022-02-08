@@ -38,7 +38,7 @@ volVectorField& U, mesh& Mesh)
         for (size_t i = 1; i < nx + 1; i++){
             x[i + j * (nx + 2)].gradient() = 1.0;
 
-            CDResidual(x, y, nx, ny, dx, dy, vol, U, nu, S);
+            CDResidual(x, y, nx, ny, dx, dy, vol, T, U, nu, S);
 
             for (size_t l = 1; l < ny + 1; l++){
                 for (size_t m = 1; m < nx + 1; m++){
@@ -104,7 +104,7 @@ volVectorField& U, mesh& Mesh)
         // reset t to 0
         t = 0;
 
-        CDResidual(x, y, nx, ny, dx, dy, vol, U, nu, S);
+        CDResidual(x, y, nx, ny, dx, dy, vol, T, U, nu, S);
 
         // assign the derivatives
         while (i + t*(nx + 2) < nx*ny)
@@ -157,7 +157,7 @@ volVectorField& U, mesh& Mesh)
 
 // cacluate the residual of the primal solver
 void CDResidual(Real* x, Real* y, size_t nx, size_t ny, double dx, double dy, double vol, 
-volVectorField& U, volScalarField& nu, volScalarField& S){
+volScalarField& T, volVectorField& U, volScalarField& nu, volScalarField& S){
 
     // the index of N, S, E, W and P points in the 1D x array and 1D y array
     size_t nIndex = 0, sIndex = 0, eIndex = 0, wIndex = 0, pIndex = 0;
@@ -167,10 +167,10 @@ volVectorField& U, volScalarField& nu, volScalarField& S){
         for(size_t i = 1; i <= nx; i++){
             // get the 1D index of N, S, W ,E and P points
             pIndex = i + j * (nx + 2);
-            nIndex = i + (j + 1) * (nx + 2);
-            sIndex = i + (j - 1) * (nx + 2);
-            wIndex = i - 1 + j * (nx + 2);
-            eIndex = i + 1 + j * (nx + 2);
+            nIndex = T.getNeighbor(i, j, "north");
+            sIndex = T.getNeighbor(i, j, "south");
+            wIndex = T.getNeighbor(i, j, "west");
+            eIndex = T.getNeighbor(i, j, "east");
 
             // compute the convection-diffusion coefficients (Scaled)
             Fs = (U[1][i][j-1] + U[1][i][j]) / 2.0 * dx;

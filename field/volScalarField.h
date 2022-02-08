@@ -32,6 +32,9 @@ class volScalarField
     // Impose boundary condition after every update
     void correctBoundary();
 
+    // 1D index of S, N, W, E neighbor of point i, j
+    int getNeighbor(int i, int j, const std::string direction);
+
     // get value, operator is overloaded, use object[index1][index2] 
     // to access (for both write and read) field[index1][index2]
     double* operator[](int index) {return field[index];}
