@@ -11,7 +11,7 @@ using namespace std;
 using Real = codi::RealForward;
 
 // brute-force forward AD
-codi::Jacobian<double> dRdWBruteForce(volScalarField& T, volScalarField& nu, volScalarField& S,
+codi::Jacobian<double> calcdRdWBruteForce(volScalarField& T, volScalarField& nu, volScalarField& S,
 volVectorField& U, mesh& Mesh)
 {
     // get the dimension of the mesh
@@ -68,7 +68,7 @@ volVectorField& U, mesh& Mesh)
 }
 
 // forward AD using graph coloring, the number of evaluation = nx + 2
-codi::Jacobian<double> dRdWColored(volScalarField& T, volScalarField& nu, volScalarField& S,
+codi::Jacobian<double> calcdRdWColored(volScalarField& T, volScalarField& nu, volScalarField& S,
 volVectorField& U, mesh& Mesh)
 {
     // get the dimension of the mesh
@@ -165,7 +165,7 @@ volVectorField& U, mesh& Mesh)
 
 // forward AD using graph coloring. the number of evaluation = 1 (the residual of cellI depends 
 // solely on the design variable of cellI)
-codi::Jacobian<double> dRdXColored(volScalarField& T, volScalarField& nu, volScalarField& S,
+codi::Jacobian<double> calcdRdXColored(volScalarField& T, volScalarField& nu, volScalarField& S,
 volVectorField& U, mesh& Mesh)
 {
     // get the dimension of the mesh

@@ -11,7 +11,7 @@ using RealR = codi::RealReverse;
 void averageT(RealR* xW, RealR* xX, RealR* y, size_t nx, size_t ny);
 
 // the Jacobian of objective function with respect to state variable
-codi::Jacobian<double> dFdW(volScalarField& T, volVectorField& U, volScalarField& nu, volScalarField& S, mesh& Mesh);
+codi::Jacobian<double> calcdFdW(volScalarField& T, volVectorField& U, volScalarField& nu, volScalarField& S, mesh& Mesh);
 
 // the Jacobian of objective function with respect to design variable
-codi::Jacobian<double> dFdX(volScalarField& T, volVectorField& U, volScalarField& nu, volScalarField& S, mesh& Mesh);
+codi::Jacobian<double> calcdFdX(volScalarField& T, volVectorField& U, volScalarField& nu, volScalarField& S, mesh& Mesh);

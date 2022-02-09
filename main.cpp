@@ -10,6 +10,12 @@
 #include "writer/writeJac.h"
 #include "Residual/CDSolverResidual.h"
 #include "ObjFuncs/averageT.h"
+#include "AdjointSolver/AdjointSolver.h"
+
+codi::Jacobian<double> FDCheck(volScalarField& T, volScalarField&S, volScalarField& nu,
+volVectorField& U, mesh& Mesh);
+
+double avgT(int nx, int ny, volScalarField& T);
 
 int main(int argc, char** argv)
 {
@@ -52,11 +58,15 @@ int main(int argc, char** argv)
     volVectorField U(nx, ny, velocity, BCtypeVelocity_, UXIni, UYIni, BCvalueVelocityX_, BCvalueVelocityY_);
     mesh Mesh(nx, ny, box[0],box[1], box[2], box[3]);
     volVectorField center = Mesh.C();
+    
 
     //Set the distribution of the source term
     for (int i = 1; i <= nx; i++){
         for (int j = 1; j <= ny; j++){
-            if(center[0][i][j] <= 0.6 && center[0][i][j] >= 0.4 && center[1][i][j] <= 0.6 && center[1][i][j] >= 0.4){
+            // if(center[0][i][j] <= 0.6 && center[0][i][j] >= 0.4 && center[1][i][j] <= 0.6 && center[1][i][j] >= 0.4){
+            //     S[i][j] = 1.0;
+            // }
+            if (i<=3 && i>=2 && j<=3 && j>=2){
                 S[i][j] = 1.0;
             }
         }
@@ -75,48 +85,51 @@ int main(int argc, char** argv)
     // write the outcome
     writePlt(T_, nu_, S_, U_, Mesh_);
 
-    // compute the Jacobian, brute-force
-    codi::Jacobian<double> jac = dRdWBruteForce(T_, nu_, S_, U_, Mesh_);
+    // solve adjoint and get the gradient
+    codi::Jacobian<double> grad = solveAdjoint(T_, S_, nu_, U_, Mesh_, tol, omega, maxIter);
 
-    // write the Jacobian
-    string fname = {"dRdW.dat"};
-    writeJac(jac, fname);
+    string fname = "gradient.dat";
+    writeJac(grad, fname);
 
-    // compute the Jacobian, graph-coloring is implemented
-    codi::Jacobian<double> jac2 = dRdWColored(T_, nu_, S_, U_, Mesh_);
+    // solve adjoint and get the gradient
+    codi::Jacobian<double> gradFD = FDCheck(T_, S_, nu_, U_, Mesh_);
 
-    // write the Jacobian
-    string fname2 = {"dRdWColored.dat"};
-    writeJac(jac2, fname2);
+    string fname2 = "gradientFD.dat";
+    writeJac(gradFD, fname2);
 
-    // compute the Jacobian, graph-coloring is implemented
-    codi::Jacobian<double> dRdX = dRdXColored(T_, nu_, S_, U_, Mesh_);
+    return 0;
+}
 
-    // write the Jacobian
-    string dRdXname = {"dRdXColored.dat"};
-    writeJac(dRdX, dRdXname);
+codi::Jacobian<double> FDCheck(volScalarField& T, volScalarField&S, volScalarField& nu,
+volVectorField& U, mesh& Mesh)
+{
+    int nx = Mesh.getNx(), ny = Mesh.getNy();
+    codi::Jacobian<double> gradFD(1, nx * ny);
+    double ref = 0.0, perturb = 0.0;
 
-    // check the consistency between the Jacobian using graph-coloring and the brute-force Jacobian
-    for(int i = 0; i < nx * ny; i++){
-        for(int j = 0; j < nx*ny; j++){
-            if(abs(jac2(i,j) - jac(i,j)) > 1e-5) {cout<<"error!\n"; break;}
+    ref = avgT(nx, ny, T);
+
+    for (int i = 1; i <= nx; i++){
+        for (int j = 1; j <= ny; j++){
+            S[i][j] += 0.001;
+            CDSolver(T, nu, U, S, Mesh, 1.5, 1e-7, 5000);
+            perturb = avgT(nx, ny, T);
+            gradFD(0, i - 1 + (j - 1) * nx) = (perturb - ref) / 1e-3;
+            S[i][j] -= 0.001;
         }
     }
 
-    // compute the objective function F and dFdW
-    codi::Jacobian<double> JacdFdW = dFdW(T_, U_, nu_, S_, Mesh_);
+    return gradFD; 
+}
 
-    // write dFdW
-    string fname3 = {"dFdW.dat"};
-    writeJac(JacdFdW, fname3);
-
-    // compute the objective function F and dFdX
-    codi::Jacobian<double> JacdFdX = dFdX(T_, U_, nu_, S_, Mesh_);
-
-    // write dFdW
-    string fname4 = {"dFdX.dat"};
-    writeJac(JacdFdX, fname4);
-
-
-    return 0;
+double avgT(int nx, int ny, volScalarField& T){
+    double ref = 0.0;
+    for (int i = 1; i <= nx; i++){
+        for (int j = 1; j <= ny; j++){
+            ref += T[i][j];
+        }
+    }
+    ref = ref / (nx * ny);
+    std::cout<<"avgT = "<<ref<<"\n";
+    return ref;
 }
