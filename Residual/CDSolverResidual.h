@@ -7,7 +7,7 @@
 using Real = codi::RealForward;
 
 // cacluate the residual of the primal solver
-void CDResidual(Real* x, Real* y, size_t nx, size_t ny, double dx, double dy, double vol, 
+void CDResidual(Real* xW, Real* xX, Real* y, size_t nx, size_t ny, double dx, double dy, double vol, 
 volScalarField& T, volVectorField& U, volScalarField& nu, volScalarField& S);
 
 // convert the Jacobian's index into the matching x,y array index
@@ -19,4 +19,9 @@ volVectorField& U, mesh& Mesh);
 
 // forward AD using graph coloring, the number of evaluation = nx + 2
 codi::Jacobian<double> dRdWColored(volScalarField& T, volScalarField& nu, volScalarField& S,
+volVectorField& U, mesh& Mesh);
+
+// forward AD using graph coloring. the number of evaluation = 1 (the residual of cellI depends 
+// solely on the design variable of cellI)
+codi::Jacobian<double> dRdXColored(volScalarField& T, volScalarField& nu, volScalarField& S,
 volVectorField& U, mesh& Mesh);

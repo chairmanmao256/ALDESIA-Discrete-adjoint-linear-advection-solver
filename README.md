@@ -37,7 +37,7 @@ If you want to compile `AeroDAT`, you have to get `CoDiPack` from github first. 
 
 ## TODOs
 
-The adjoint solver is now still incomplete since the objective function is not implemented. The Jacobian with respect to design variables is also not implemented yet. 
+All the Jacobian are ready. Now an SOR solver can be implemented to solve the adjoint equation and the gradient can be computed. 
 
 The linear equation systems in AeroDAT are solved by SOR algorithm. GMRES method might be implemented in the future for both primal and adjoint solvers.
 

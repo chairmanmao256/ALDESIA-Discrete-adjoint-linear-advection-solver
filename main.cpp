@@ -89,6 +89,13 @@ int main(int argc, char** argv)
     string fname2 = {"dRdWColored.dat"};
     writeJac(jac2, fname2);
 
+    // compute the Jacobian, graph-coloring is implemented
+    codi::Jacobian<double> dRdX = dRdXColored(T_, nu_, S_, U_, Mesh_);
+
+    // write the Jacobian
+    string dRdXname = {"dRdXColored.dat"};
+    writeJac(dRdX, dRdXname);
+
     // check the consistency between the Jacobian using graph-coloring and the brute-force Jacobian
     for(int i = 0; i < nx * ny; i++){
         for(int j = 0; j < nx*ny; j++){
@@ -102,6 +109,13 @@ int main(int argc, char** argv)
     // write dFdW
     string fname3 = {"dFdW.dat"};
     writeJac(JacdFdW, fname3);
+
+    // compute the objective function F and dFdX
+    codi::Jacobian<double> JacdFdX = dFdX(T_, U_, nu_, S_, Mesh_);
+
+    // write dFdW
+    string fname4 = {"dFdX.dat"};
+    writeJac(JacdFdX, fname4);
 
 
     return 0;

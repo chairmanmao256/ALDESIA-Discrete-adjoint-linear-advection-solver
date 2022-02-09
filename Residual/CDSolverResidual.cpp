@@ -22,11 +22,13 @@ volVectorField& U, mesh& Mesh)
 
     // initialize the FORWARD Real class for derivative computation, and assign the value
     Real* y = new Real[(nx + 2) * (ny + 2)];
-    Real* x = new Real[(nx + 2) * (ny + 2)];
+    Real* xW = new Real[(nx + 2) * (ny + 2)];
+    Real* xX = new Real[(nx + 2) * (ny + 2)];
     
     for(size_t j = 0; j < ny + 2; j++){
         for(size_t i = 0; i < nx + 2; i++){
-            x[i + j * (nx + 2)] = T[i][j];
+            xW[i + j * (nx + 2)] = T[i][j];
+            xX[i + j * (nx + 2)] = S[i][j];
         }
     }
 
@@ -36,9 +38,9 @@ volVectorField& U, mesh& Mesh)
     // compute the full Jacobian.
     for (size_t j = 1; j < ny + 1; j++){
         for (size_t i = 1; i < nx + 1; i++){
-            x[i + j * (nx + 2)].gradient() = 1.0;
+            xW[i + j * (nx + 2)].gradient() = 1.0;   // compute the derivatives with respect to state variables
 
-            CDResidual(x, y, nx, ny, dx, dy, vol, T, U, nu, S);
+            CDResidual(xW, xX, y, nx, ny, dx, dy, vol, T, U, nu, S);
 
             for (size_t l = 1; l < ny + 1; l++){
                 for (size_t m = 1; m < nx + 1; m++){
@@ -52,14 +54,15 @@ volVectorField& U, mesh& Mesh)
                 }
             }
 
-            x[i + j * (nx + 2)].gradient() = 0.0;
+            xW[i + j * (nx + 2)].gradient() = 0.0;
         }
     }
 
     delete [] y;
-    delete [] x;
+    delete [] xW;
+    delete [] xX;
 
-    cout<<"Jacobian computation completed!\n";
+    cout<<"dRdW-brute-force computation completed!\n";
 
     return jacobian;
 }
@@ -71,17 +74,21 @@ volVectorField& U, mesh& Mesh)
     // get the dimension of the mesh
     int nx = Mesh.getNx(), ny = Mesh.getNy(), t = 0;
     double dx = Mesh.dx, dy = Mesh.dy, vol = Mesh.vol;
+
+    // initialize the indexes and coefficients used in residual evaluation
     int pIndex, nIndex, sIndex, eIndex, wIndex;
     int ppIndex, nnIndex, ssIndex, eeIndex, wwIndex;
     double Fs, Fn, Fw, Fe, Ds, Dn, De, Dw, as, an, ae, aw, ap;
 
     // initialize the FORWARD Real class for derivative computation, and assign the value
     Real* y = new Real[(nx + 2) * (ny + 2)];
-    Real* x = new Real[(nx + 2) * (ny + 2)];
+    Real* xW = new Real[(nx + 2) * (ny + 2)];
+    Real* xX = new Real[(nx + 2) * (ny + 2)];
     
     for(size_t j = 0; j < ny + 2; j++){
         for(size_t i = 0; i < nx + 2; i++){
-            x[i + j * (nx + 2)] = T[i][j];
+            xW[i + j * (nx + 2)] = T[i][j];
+            xX[i + j * (nx + 2)] = S[i][j];
         }
     }
 
@@ -98,13 +105,13 @@ volVectorField& U, mesh& Mesh)
         while (i + t*(nx + 2) < nx*ny)
         {
             ppIndex = jacIndexToArrayIndex(i + t*(nx + 2), nx, ny);
-            x[ppIndex].gradient() = 1.0; t++;
+            xW[ppIndex].gradient() = 1.0; t++;    // compute the derivatives with respect to state variables
         }
 
         // reset t to 0
         t = 0;
 
-        CDResidual(x, y, nx, ny, dx, dy, vol, T, U, nu, S);
+        CDResidual(xW, xX, y, nx, ny, dx, dy, vol, T, U, nu, S);
 
         // assign the derivatives
         while (i + t*(nx + 2) < nx*ny)
@@ -140,7 +147,7 @@ volVectorField& U, mesh& Mesh)
         while (i + t*(nx + 2) < nx*ny)
         {
             ppIndex = jacIndexToArrayIndex(i + t*(nx + 2), nx, ny);
-            x[ppIndex].gradient() = 0.0; t++;
+            xW[ppIndex].gradient() = 0.0; t++;
         }  
 
         // reset t to 0
@@ -148,15 +155,74 @@ volVectorField& U, mesh& Mesh)
     }
 
     delete [] y;
-    delete [] x;
+    delete [] xW;
+    delete [] xX;
 
-    cout<<"Jacobian computation completed!\n";
+    cout<<"dRdW-colored computation completed!\n";
+
+    return jacobian;
+}
+
+// forward AD using graph coloring. the number of evaluation = 1 (the residual of cellI depends 
+// solely on the design variable of cellI)
+codi::Jacobian<double> dRdXColored(volScalarField& T, volScalarField& nu, volScalarField& S,
+volVectorField& U, mesh& Mesh)
+{
+    // get the dimension of the mesh
+    int nx = Mesh.getNx(), ny = Mesh.getNy(), t = 0;
+    double dx = Mesh.dx, dy = Mesh.dy, vol = Mesh.vol;
+
+    // initialize the indexes and coefficients used in residual evaluation
+    int pIndex, nIndex, sIndex, eIndex, wIndex;
+    int ppIndex, nnIndex, ssIndex, eeIndex, wwIndex;
+    double Fs, Fn, Fw, Fe, Ds, Dn, De, Dw, as, an, ae, aw, ap;
+
+    // initialize the FORWARD Real class for derivative computation, and assign the value
+    Real* y = new Real[(nx + 2) * (ny + 2)];
+    Real* xW = new Real[(nx + 2) * (ny + 2)];
+    Real* xX = new Real[(nx + 2) * (ny + 2)];
+    
+    for(size_t j = 0; j < ny + 2; j++){
+        for(size_t i = 0; i < nx + 2; i++){
+            xW[i + j * (nx + 2)] = T[i][j];
+            xX[i + j * (nx + 2)] = S[i][j];  // here the heat source is the design variable
+        }
+    }
+
+    // initialize the full Jacobian
+    codi::Jacobian<double> jacobian(nx*ny,nx*ny);
+
+    // use only one evaluation to compute the full Jacobian
+    // set the seeds
+    for (size_t i = 0; i < nx * ny; i++){
+        xX[jacIndexToArrayIndex(i, nx, ny)].gradient() = 1.0;
+    }
+
+    // evaluate the residual
+    CDResidual(xW, xX, y, nx, ny, dx, dy, vol, T, U, nu, S);
+
+    // assign the derivatives
+    for (size_t i = 0; i < nx * ny; i++){
+        jacobian(i, i) = y[jacIndexToArrayIndex(i,nx,ny)].getGradient();
+    }
+
+    // reset the seeds
+    for (size_t i = 0; i < nx * ny; i++){
+        xX[jacIndexToArrayIndex(i, nx, ny)].gradient() = 0.0;
+    }
+
+    // deallocate the Real array
+    delete [] y;
+    delete [] xW;
+    delete [] xX;
+
+    cout<<"dRdX-colored computation completed!\n";
 
     return jacobian;
 }
 
 // cacluate the residual of the primal solver
-void CDResidual(Real* x, Real* y, size_t nx, size_t ny, double dx, double dy, double vol, 
+void CDResidual(Real* xW, Real* xX, Real* y, size_t nx, size_t ny, double dx, double dy, double vol, 
 volScalarField& T, volVectorField& U, volScalarField& nu, volScalarField& S){
 
     // the index of N, S, E, W and P points in the 1D x array and 1D y array
@@ -188,7 +254,7 @@ volScalarField& T, volVectorField& U, volScalarField& nu, volScalarField& S){
             ap = Fe - Fw + Fn - Fs + as + an + ae + aw;
 
             // compute the residual
-            y[pIndex] = vol*S[i][j] + as * x[sIndex] + an * x[nIndex] + ae * x[eIndex] + aw * x[wIndex] - ap * x[pIndex];
+            y[pIndex] = vol * xX[pIndex] + as * xW[sIndex] + an * xW[nIndex] + ae * xW[eIndex] + aw * xW[wIndex] - ap * xW[pIndex];
     }
   }
 }
