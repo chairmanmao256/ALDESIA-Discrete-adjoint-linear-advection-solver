@@ -8,6 +8,7 @@ std::string BCtypeZeroGradient[4] = {"fixedGradient","fixedGradient","fixedGradi
 std::string BCtypeVelocity_[4];
 std::string dependentScalar, diffusitivity, source;
 std::string velocity;
+std::string objName;
 
 nx = test.getInteger("dimension","nx",10);
 ny = test.getInteger("dimension","ny",10);
@@ -54,3 +55,5 @@ SIni = test.getFloat("fieldValue","S",0.0);
 omega = test.getFloat("SolverParameters","omega",1.5);
 tol = test.getFloat("SolverParameters","tolerance",1e-4);
 maxIter = test.getInteger("SolverParameters","maxIter", 3000);
+
+objName = test.getString("ObjectiveFunction","name", "averageTempreture");

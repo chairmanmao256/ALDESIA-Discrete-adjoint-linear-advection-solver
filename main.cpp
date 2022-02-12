@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <map>
 #include <codi.hpp>
 #include "config/ConfigMap.h"
 #include "field/volScalarField.h"
@@ -9,7 +10,10 @@
 #include "writer/writePlt.h"
 #include "writer/writeJac.h"
 #include "Residual/CDSolverResidual.h"
-#include "ObjFuncs/averageT.h"
+#include "ObjFuncs/DerivObj.h"
+#include "ObjFuncs/objFuncs.h"
+#include "ObjFuncs/objFuncAvgT.h"
+#include "ObjFuncs/selector.h"
 #include "AdjointSolver/AdjointSolver.h"
 
 codi::Jacobian<double> FDCheck(volScalarField& T, volScalarField&S, volScalarField& nu,
@@ -79,6 +83,11 @@ int main(int argc, char** argv)
     volVectorField& U_ = U;
     mesh& Mesh_ = Mesh;
 
+    // Initialize the objective function
+    map<string, objFuncs*> myMap;
+    myMap["averageTempreture"] = selector<objFuncAvgT>(T_, S_, nu_, U_, Mesh_);
+    objFuncs& obj_ = *myMap[objName];
+
     // Solve the Problem
     CDSolver(T_, nu_, U_, S_, Mesh_, omega, tol, maxIter);
 
@@ -86,7 +95,7 @@ int main(int argc, char** argv)
     writePlt(T_, nu_, S_, U_, Mesh_);
 
     // solve adjoint and get the gradient
-    codi::Jacobian<double> grad = solveAdjoint(T_, S_, nu_, U_, Mesh_, tol, omega, maxIter);
+    codi::Jacobian<double> grad = solveAdjoint(T_, S_, nu_, U_, Mesh_, tol, omega, maxIter, obj_);
 
     string fname = "gradient.dat";
     writeJac(grad, fname);
@@ -96,6 +105,8 @@ int main(int argc, char** argv)
 
     string fname2 = "gradientFD.dat";
     writeJac(gradFD, fname2);
+
+    delete myMap["averageTempreture"];
 
     return 0;
 }

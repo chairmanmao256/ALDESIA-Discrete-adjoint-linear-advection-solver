@@ -4,27 +4,15 @@
 #include "../field/volScalarField.h"
 #include "../field/volVectorField.h"
 #include "../field/mesh.h"
-#include "averageT.h"
+#include "DerivObj.h"
 
 // since we want to get the gradient of the objective function, we use reverse mode AD
-using RealR = codi::RealReverse;
 using Tape = typename RealR::Tape;
 using namespace std;
 
-// objective function
-void averageT(RealR* xW, RealR* xX, RealR* y, size_t nx, size_t ny)
-{
-    y[0] = 0.0;
-    for (size_t i = 0; i < nx * ny; i++){
-        y[0] += xW[i];
-    }
-    y[0] = y[0]/(nx * ny);
-
-    cout<<"The average T is:"<<y[0]<<"\n";
-}
-
 // the Jacobian of objective function with respect to state variable
-codi::Jacobian<double> calcdFdW(volScalarField& T, volVectorField& U, volScalarField& nu, volScalarField& S, mesh& Mesh)
+codi::Jacobian<double> calcdFdW(volScalarField& T, volVectorField& U, volScalarField& nu, 
+volScalarField& S, mesh& Mesh, objFuncs& obj)
 {
     // get the dimension info
     int nx = Mesh.getNx(), ny = Mesh.getNy();
@@ -51,7 +39,7 @@ codi::Jacobian<double> calcdFdW(volScalarField& T, volVectorField& U, volScalarF
     }
 
     // evaluate the obj
-    averageT(xW, xX, y, nx, ny);
+    obj.evalObjForAD(xW, xX, y);
 
     // register output
     tape.registerOutput(y[0]);
@@ -75,7 +63,8 @@ codi::Jacobian<double> calcdFdW(volScalarField& T, volVectorField& U, volScalarF
 }
 
 // the Jacobian of objective function with respect to design variable
-codi::Jacobian<double> calcdFdX(volScalarField& T, volVectorField& U, volScalarField& nu, volScalarField& S, mesh& Mesh)
+codi::Jacobian<double> calcdFdX(volScalarField& T, volVectorField& U, volScalarField& nu, 
+volScalarField& S, mesh& Mesh, objFuncs& obj)
 {
     // get the dimension info
     int nx = Mesh.getNx(), ny = Mesh.getNy();
@@ -102,7 +91,7 @@ codi::Jacobian<double> calcdFdX(volScalarField& T, volVectorField& U, volScalarF
     }
 
     // evaluate the obj
-    averageT(xW, xX, y, nx, ny);
+    obj.evalObjForAD(xW, xX, y);
 
     // register output
     tape.registerOutput(y[0]);

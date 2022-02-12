@@ -1,18 +1,12 @@
 #include <codi.hpp>
 #include <iostream>
 #include <string>
-#include "../field/volScalarField.h"
-#include "../field/volVectorField.h"
-#include "../field/mesh.h"
-#include "../writer/writePlt.h"
-#include "../writer/writeJac.h"
-#include "../Residual/CDSolverResidual.h"
-#include "../ObjFuncs/averageT.h"
+#include "AdjointSolver.h"
 
 using namespace std;
 
 codi::Jacobian<double> solveAdjoint(volScalarField& T, volScalarField& S, volScalarField& nu,
-volVectorField& U, mesh& Mesh, double tol, double omega, int maxIter)
+volVectorField& U, mesh& Mesh, double tol, double omega, int maxIter, objFuncs& obj)
 {
     // initialize the SOR parameters
     double res = 1e4, valOld, valNew, product = 0.0, offDiag = 0.0;
@@ -41,14 +35,14 @@ volVectorField& U, mesh& Mesh, double tol, double omega, int maxIter)
     writeJac(dRdX, dRdXFile);
 
     // compute the objective function F and dFdW
-    codi::Jacobian<double> dFdW = calcdFdW(T, U, nu, S, Mesh);
+    codi::Jacobian<double> dFdW = calcdFdW(T, U, nu, S, Mesh, obj);
 
     // write dFdW
     string dFdWFile = {"dFdW.dat"};
     writeJac(dFdW, dFdWFile);
 
     // compute the objective function F and dFdX
-    codi::Jacobian<double> dFdX = calcdFdX(T, U, nu, S, Mesh);
+    codi::Jacobian<double> dFdX = calcdFdX(T, U, nu, S, Mesh, obj);
 
     // write dFdW
     string dFdXFile = {"dFdX.dat"};
