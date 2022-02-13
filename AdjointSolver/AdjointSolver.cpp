@@ -6,7 +6,7 @@
 using namespace std;
 
 codi::Jacobian<double> solveAdjoint(volScalarField& T, volScalarField& S, volScalarField& nu,
-volVectorField& U, mesh& Mesh, double tol, double omega, int maxIter, objFuncs& obj)
+volVectorField& U, mesh& Mesh, double tol, double omega, int maxIter, objFuncs& obj, bool isWrite)
 {
     // initialize the SOR parameters
     double res = 1e4, valOld, valNew, product = 0.0, offDiag = 0.0;
@@ -23,30 +23,34 @@ volVectorField& U, mesh& Mesh, double tol, double omega, int maxIter, objFuncs& 
     // compute the Jacobian, graph-coloring is implemented
     codi::Jacobian<double> dRdW = calcdRdWColored(T, nu, S, U, Mesh);
 
-    // write the Jacobian
+    // dRdW file name
     string dRdWFile = {"dRdWColored.dat"};
-    writeJac(dRdW, dRdWFile);
 
     // compute the Jacobian, graph-coloring is implemented
     codi::Jacobian<double> dRdX = calcdRdXColored(T, nu, S, U, Mesh);
 
-    // write the Jacobian
+    //  dRdX file name
     string dRdXFile = {"dRdXColored.dat"};
-    writeJac(dRdX, dRdXFile);
 
     // compute the objective function F and dFdW
     codi::Jacobian<double> dFdW = calcdFdW(T, U, nu, S, Mesh, obj);
 
-    // write dFdW
+    // dFdW file name
     string dFdWFile = {"dFdW.dat"};
-    writeJac(dFdW, dFdWFile);
 
     // compute the objective function F and dFdX
     codi::Jacobian<double> dFdX = calcdFdX(T, U, nu, S, Mesh, obj);
 
-    // write dFdW
+    // dFdW file name
     string dFdXFile = {"dFdX.dat"};
-    writeJac(dFdX, dFdXFile);
+
+    // if we write the Jacobian
+    if(isWrite){
+        writeJac(dRdW, dRdWFile);
+        writeJac(dRdX, dRdXFile);
+        writeJac(dFdW, dFdWFile);
+        writeJac(dFdX, dFdXFile);
+    }
 
     // solve the linear equation using SOR
 

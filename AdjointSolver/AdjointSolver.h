@@ -8,4 +8,4 @@
 #include "../ObjFuncs/DerivObj.h"
 
 codi::Jacobian<double> solveAdjoint(volScalarField& T, volScalarField& S, volScalarField& nu,
-volVectorField& U, mesh& Mesh, double tol, double omega, int maxIter, objFuncs& obj);
+volVectorField& U, mesh& Mesh, double tol, double omega, int maxIter, objFuncs& obj, bool isWrite);

@@ -1,6 +1,8 @@
-all: main.out
+all: interface.out
 
-main.out: main.o ./field/volScalarField.o ./field/volVectorField.o ./field/mesh.o \
+interface.out: interface.o \
+		Aldesia.o\
+		./field/volScalarField.o ./field/volVectorField.o ./field/mesh.o \
 		./config/INIReader.o ./config/ini.o ./config/ConfigMap.o \
 		./Solver/CDSolver.o \
 		./Residual/CDSolverResidual.o \
@@ -9,7 +11,11 @@ main.out: main.o ./field/volScalarField.o ./field/volVectorField.o ./field/mesh.
 		./AdjointSolver/AdjointSolver.o
 	g++ $^ -o $@
 
-main.o: main.cpp readValue.h \
+
+interface.o: interface.cpp
+	g++ -c -I ~/coding/AD_learn/CoDiPack/include -std=c++11 -g $< -o $@
+
+Aldesia.o: Aldesia.cpp createRef.h \
 		./config/ConfigMap.h \
 		./field/volScalarField.h ./field/volVectorField.h ./field/mesh.h \
 		./Solver/CDSolver.h \

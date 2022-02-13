@@ -95,7 +95,7 @@ int main(int argc, char** argv)
     writePlt(T_, nu_, S_, U_, Mesh_);
 
     // solve adjoint and get the gradient
-    codi::Jacobian<double> grad = solveAdjoint(T_, S_, nu_, U_, Mesh_, tol, omega, maxIter, obj_);
+    codi::Jacobian<double> grad = solveAdjoint(T_, S_, nu_, U_, Mesh_, tol, omega, maxIter, obj_, true);
 
     string fname = "gradient.dat";
     writeJac(grad, fname);
