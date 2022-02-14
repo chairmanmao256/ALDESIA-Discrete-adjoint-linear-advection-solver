@@ -226,7 +226,7 @@ void Aldesia::printHeader()
     cout<<"|  I was born in AeroLab, School of Aerospace engineering, |"<<endl;
     cout<<"|                    Tsinghua University.                  |"<<endl;
     cout<<"|                                                          |"<<endl;
-    cout<<"|I'm a toy program who helps the students get familar with |"<<endl;
+    cout<<"|I'm a toy program who helps the students get familiar with|"<<endl;
     cout<<"|             CFD and Discrete-Adjoint method!             |"<<endl;
     cout<<"|                                                          |"<<endl;
     cout<<"|                   Now, let's do our work!                |"<<endl;
