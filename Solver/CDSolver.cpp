@@ -50,8 +50,8 @@ void CDSolver(volScalarField& T, volScalarField& nu, volVectorField& U, volScala
         }
         // print solver performance info
         if(step%100 == 0 || step == 1){
-            cout<<"Iteration step: "<< step <<"\n";
-            cout<<"      Residual: "<< res << "\n";
+            cout<<"Iteration step:   "<< step <<"\n";
+            cout<<"      Residual:   "<< res << "\n";
             cout<<"\n";
         }
     }

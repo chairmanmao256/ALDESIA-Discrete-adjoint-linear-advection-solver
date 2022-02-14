@@ -18,6 +18,17 @@ volVectorField& U, mesh& Mesh, double tol, double omega, int maxIter, objFuncs& 
     // initialize the gradient Jacobian
     codi::Jacobian<double> grad(1, nx * ny);
 
+    // if the objective function relies only on DV, use
+    // DA to compute its gradient
+    if (obj.getIsDVOnly())
+    {
+        cout<<"The objective depends on design variables only!\n";
+        cout<<"Aldesia uses reverse mode AD to calcluate gradient.\n";
+        grad = calcdFdX(T, U, nu, S, Mesh, obj);
+        cout<<"Job finished!\n";
+        return grad;
+    }
+
     // calculate the Jacobians and write them
 
     // compute the Jacobian, graph-coloring is implemented
@@ -71,6 +82,11 @@ volVectorField& U, mesh& Mesh, double tol, double omega, int maxIter, objFuncs& 
 
             // reset the offDiagnoal terms
             offDiag = 0.0;
+        }
+        if(step % 100 == 0 || step == 1){
+            cout<<"Iteration step:   "<< step <<"\n";
+            cout<<"Adjoint Residual: "<< res << "\n";
+            cout<<"\n";
         }
     }
     cout<<"Adjoint computation ends after "<<step<<" iterations.\n";

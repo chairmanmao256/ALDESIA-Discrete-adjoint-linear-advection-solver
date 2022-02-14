@@ -1,7 +1,6 @@
-#include "objFuncs.h"
-
 #ifndef OBJFUNSAVGT_H
 #define OBJFUNCAVGT_H
+#include "objFuncs.h"
 class objFuncAvgT : public objFuncs
 {
     public:

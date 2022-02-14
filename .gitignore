@@ -7,4 +7,6 @@
 ADTest
 tests
 oldMake
+main.cpp
+readValue.h
 run.sh

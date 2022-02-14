@@ -16,6 +16,7 @@
 #include "ObjFuncs/DerivObj.h"
 #include "ObjFuncs/objFuncs.h"
 #include "ObjFuncs/objFuncAvgT.h"
+#include "ObjFuncs/objFuncSourceSum.h"
 #include "ObjFuncs/selector.h"
 #include "AdjointSolver/AdjointSolver.h"
 
@@ -50,6 +51,9 @@ class Aldesia
 
     /// decide if we want to write the Jacobian and the gradient
     bool isWriteJac = false, isWriteGrad = false;
+
+    /// the number of primal and adjoint evaluations
+    int nSolvePrimals = 0, nSolveAdjoints = 0;
     
 
     public:
@@ -62,15 +66,23 @@ class Aldesia
     /// set the string-obj map
     void setObjMap();
 
+    /// set the design variable
+    void setDesignVariable(int oneDimesionalIndex, double val);
+
     /// solve the PDE
     void solvePrimal();
 
     /// solve adjoint
     void solveDA(string objName);
 
+    /// calculate the objective function value
+    double calcObj(string objName);
+
     /// write the .plt file of the primal solution
     void writePrimal();
 
+    /// print the header
+    void printHeader();
 };
 
 

@@ -79,8 +79,15 @@ Aldesia::Aldesia(string inputFile)
     if(test.getInteger("WriteJacobianAndGradient","Jacobian",0) > 0) {isWriteJac = true;}
     if(test.getInteger("WriteJacobianAndGradient","gradient",0) > 0) {isWriteGrad = true;}
 
+    // print the header
+    printHeader();
+
+    cout<<"+----------------------------------------------------------+"<<endl;
+    cout<<"|         Aldesia is now reading the parameters!           |"<<endl;
+    cout<<"+----------------------------------------------------------+"<<endl<<endl;
+
     // print user input data's info
-    cout<<"* * * * * * Problem Description * * * * * *\n";
+    cout<<"* * * * * * * * * * Problem Description * * * * * * * * * * *\n";
     cout<<"nx: "<<nx<<", ny: "<<ny<<"\n";
     cout<<"Scalar's name:     "<<dependentScalar<<"\n";
     cout<<"BC type, South:    "<<BCtype_[0]<<"\n"
@@ -91,12 +98,13 @@ Aldesia::Aldesia(string inputFile)
     cout<<"Velocity initial:  ("<<UXIni<<", "<<UYIni<<")\n";
     cout<<"Diffusitivity:     "<<nuIni<<"\n";
     cout<<"Uniform source:    "<<SIni<<"\n";
-    cout<<"* * * * * * * * * * * * * * * * * * * * *\n"<<"\n";
+    cout<<"* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\n"<<"\n";
 
-    cout<<"* * * * * * * Solver Setting * * * * * * *\n";
+    cout<<"* * * * * * * * * * * * Solver Setting * * * * * * * * * * * *\n";
     cout<<"Relaxation of SOR: "<<omega<<"\n";
     cout<<"Absolute tolerance:"<<tol<<"\n";
     cout<<"Maximum iteration: "<<maxIter<<"\n"<<"\n";
+    cout<<"* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\n"<<"\n";
 
     // Initialize the fields
     TPtr = new volScalarField(nx, ny, dependentScalar, BCtype_, dpIni, BCvalue_);
@@ -104,18 +112,6 @@ Aldesia::Aldesia(string inputFile)
     SPtr = new volScalarField(nx, ny, source, BCtypeZeroGradient, SIni, BCvalueZeroGradient);
     UPtr = new volVectorField(nx, ny, velocity, BCtypeVelocity_, UXIni, UYIni, BCvalueVelocityX_, BCvalueVelocityY_);
     MeshPtr = new mesh(nx, ny, box[0],box[1], box[2], box[3]);
-
-
-    for (int i = 1; i <= nx; i++){
-        for (int j = 1; j <= ny; j++){
-            // if(center[0][i][j] <= 0.6 && center[0][i][j] >= 0.4 && center[1][i][j] <= 0.6 && center[1][i][j] >= 0.4){
-            //     S[i][j] = 1.0;
-            // }
-            if (i<=3 && i>=2 && j<=3 && j>=2){
-                (*SPtr)[i][j] = 1.0;
-            }
-        }
-    }
 
     // set the objective function
     setObjMap();
@@ -132,6 +128,10 @@ Aldesia::~Aldesia()
     delete UPtr;
     delete MeshPtr;
     delete [] grad;
+
+    // delete *objFuncs one by one
+    delete objMap["averageTempreture"];
+    delete objMap["souceSum"];
 }
 
 void Aldesia::setObjMap()
@@ -139,25 +139,55 @@ void Aldesia::setObjMap()
     #include "createRef.h"
 
     objMap["averageTempreture"] = selector<objFuncAvgT>(T_, S_, nu_, U_, Mesh_);
+    objMap["sourceSum"] = selector<objFuncSourceSum>(T_, S_, nu_, U_, Mesh_);
+}
+
+void Aldesia::setDesignVariable(int oneDimensionalIndex, double val)
+{   
+    // get the 2-d index corresponds to oneDimensionalIndex
+    int i, j;
+    i = oneDimensionalIndex % (*MeshPtr).getNx() + 1;
+    j = (oneDimensionalIndex - i + 1) / (*MeshPtr).getNx() + 1;
+
+    // set the design variable to val
+    (*SPtr)[i][j] = val;
 }
 
 void Aldesia::solvePrimal()
 {
     #include "createRef.h"
+    
+    cout<<"+----------------------------------------------------------+"<<endl;
+    cout<<"|             Aldesia is now solving the PDE!              |"<<endl;
+    cout<<"+----------------------------------------------------------+"<<endl<<endl;
+
+    nSolvePrimals++;
 
     CDSolver(T_, nu_, U_, S_, Mesh_, omega, tol, maxIter);
+
+    cout<<endl;
 }
 
 void Aldesia::solveDA(string objName)
 {
     // compute the gradient of a scalar function using Discrete-Adjoint method
 
-
     #include "createRef.h"
+
+    cout<<"+----------------------------------------------------------+"<<endl;
+    cout<<"|         Aldesia is now calculating the gradient!         |"<<endl;
+    cout<<"+----------------------------------------------------------+"<<endl;
+    cout<<"+----------------------------------------------------------+"<<endl;
+    cout<<"|                 Objective function name:                 |"<<endl;
+    cout<<"+----------------------------------------------------------+"<<endl;
+    cout<<"|              "<<objName<<"               |"<<endl<<endl;
 
     // calculate the gradient of the function specified by the user
     objFuncs& obj_ = *objMap[objName];
-    codi::Jacobian<double> gradJac = solveAdjoint(T_, S_, nu_, U_, Mesh_, tol, omega, maxIter, obj_, isWriteJac);
+    if(!obj_.getIsDVOnly())  {nSolveAdjoints++;}
+
+    codi::Jacobian<double> gradJac = 
+    solveAdjoint(T_, S_, nu_, U_, Mesh_, tol, omega, maxIter, obj_, isWriteJac);
 
     // convert the Jacobian to the standard array
     for (int i = 0; i < gradJac.getN(); i++){
@@ -168,10 +198,37 @@ void Aldesia::solveDA(string objName)
     if(isWriteGrad){
         writeJac(gradJac,"gradient.dat");
     }
+
+    cout<<endl;
+}
+
+double Aldesia::calcObj(string objName)
+{
+    // obj's value should be calculated first!
+    (*objMap[objName]).calcObjVal();
+
+    cout<<endl;
+
+    return (*objMap[objName]).getObjVal();
 }
 
 void Aldesia::writePrimal()
 {
     #include "createRef.h"
     writePlt(T_, nu_, S_, U_, Mesh_);
+}
+
+void Aldesia::printHeader()
+{
+    cout<<"+----------------------------------------------------------+"<<endl;
+    cout<<"|               Nice to see you! I'm Aldesia!              |"<<endl;
+    cout<<"|                                                          |"<<endl;
+    cout<<"|  I was born in AeroLab, School of Aerospace engineering, |"<<endl;
+    cout<<"|                    Tsinghua University.                  |"<<endl;
+    cout<<"|                                                          |"<<endl;
+    cout<<"|I'm a toy program who helps the students get familar with |"<<endl;
+    cout<<"|             CFD and Discrete-Adjoint method!             |"<<endl;
+    cout<<"|                                                          |"<<endl;
+    cout<<"|                   Now, let's do our work!                |"<<endl;
+    cout<<"+----------------------------------------------------------+"<<endl<<endl;
 }

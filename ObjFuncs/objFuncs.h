@@ -30,6 +30,12 @@ class objFuncs{
     // obj's value
     double objVal;
 
+    // whether the design variables are the ONLY
+    // dependent variable of the obj, if true, AD
+    // instead of DA will be used to calculate obj's
+    // gradient
+    bool isDVOnly = false;
+
     public:
     // constructor
     objFuncs(volScalarField& T, volScalarField& S, volScalarField& nu, volVectorField& U,
@@ -40,6 +46,9 @@ class objFuncs{
 
     // return the obj value
     double getObjVal();
+
+    // return isDVOnly
+    bool getIsDVOnly();
 
     // calculate obj value
     virtual void calcObjVal() {objVal = 0.0;}
