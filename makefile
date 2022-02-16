@@ -13,7 +13,7 @@ interface.out: interface.o \
 
 
 interface.o: interface.cpp
-	g++ -c -I ./CoDiPack/include -std=c++11 -g $< -o $@
+	g++ -c -I ./CoDiPackModule/include -std=c++11 -g $< -o $@
 
 Aldesia.o: Aldesia.cpp createRef.h \
 		./config/ConfigMap.h \
@@ -23,7 +23,7 @@ Aldesia.o: Aldesia.cpp createRef.h \
 		./writer/writePlt.h ./writer/writeJac.h \
 		./ObjFuncs/objFuncs.h ./ObjFuncs/objFuncAvgT.h ./ObjFuncs/objFuncSourceSum.h ./ObjFuncs/DerivObj.h ./ObjFuncs/selector.h\
 		./AdjointSolver/AdjointSolver.h
-	g++ -c -I ./CoDiPack/include -std=c++11 -g $< -o $@
+	g++ -c -I ./CoDiPackModule/include -std=c++11 -g $< -o $@
 
 clean:
 	rm *.o *.out
