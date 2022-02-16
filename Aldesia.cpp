@@ -48,6 +48,12 @@ Aldesia::Aldesia(string inputFile)
     diffusitivity = test.getString("fieldName","diffusitivity","nu");
     source = test.getString("fieldName","source","S");
 
+    // initial S distribution
+    boxXmin = test.getFloat("initialSDistribution", "boxXmin", 0.0);
+    boxXmax = test.getFloat("initialSDistribution", "boxXmax", 0.0);
+    boxYmin = test.getFloat("initialSDistribution", "boxYmin", 0.0);
+    boxYmax = test.getFloat("initialSDistribution", "boxYmax", 0.0);
+
     // dependent scalar's boundary type
     BCtype_[0] = test.getString("boundaryType","south","fixedValue");
     BCtype_[1] = test.getString("boundaryType","north","fixedValue");
@@ -72,8 +78,8 @@ Aldesia::Aldesia(string inputFile)
     tol = test.getFloat("SolverParameters","tolerance",1e-4);
     maxIter = test.getInteger("SolverParameters","maxIter", 3000);
 
-    // objective function's name
-    // objName = test.getString("ObjectiveFunction","name", "averageTempreture");
+    // decide if we want to solve the adjoint
+    if(test.getInteger("AdjointOnOrOff","solvePrimalOnly", 0) > 0) {solvePrimalOnly = true;}
 
     // decide if we want to write down the Jacobian and the gradient
     if(test.getInteger("WriteJacobianAndGradient","Jacobian",0) > 0) {isWriteJac = true;}
@@ -153,6 +159,26 @@ void Aldesia::setDesignVariable(int oneDimensionalIndex, double val)
     (*SPtr)[i][j] = val;
 }
 
+bool Aldesia::isInBox(int oneDimensionalIndex)
+{
+    // get the 2-d index corresponds to oneDimensionalIndex
+    int i, j;
+    i = oneDimensionalIndex % (*MeshPtr).getNx() + 1;
+    j = (oneDimensionalIndex - i + 1) / (*MeshPtr).getNx() + 1;
+
+    //cout<<"checking: ("<<(*MeshPtr).getCellX(i,j)<<", "<<(*MeshPtr).getCellY(i,j)<<")\n";
+
+    // check if the cell is in the box
+    if ((*MeshPtr).getCellX(i,j) <= boxXmax && (*MeshPtr).getCellX(i,j) >= boxXmin
+      &&(*MeshPtr).getCellY(i,j) <= boxYmax && (*MeshPtr).getCellY(i,j) >= boxYmin)
+    {
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
 void Aldesia::solvePrimal()
 {
     #include "createRef.h"
@@ -171,6 +197,11 @@ void Aldesia::solvePrimal()
 void Aldesia::solveDA(string objName)
 {
     // compute the gradient of a scalar function using Discrete-Adjoint method
+    if (solvePrimalOnly) {
+        cout<<"Aldesia found that the user has specified 'solvePrimalOnly'\n"
+            <<"in the input file, so the adjoint will not be solved.\n";
+        return;
+    }
 
     #include "createRef.h"
 

@@ -24,6 +24,10 @@ class mesh
     // get cell-center's coordinate
     volVectorField C();
 
+    // get the center of the specified cell
+    double getCellX(int i, int j);
+    double getCellY(int i, int j);
+
     // get the dimension of the INTERNAL domain
     int getNx() {return nx;}
 

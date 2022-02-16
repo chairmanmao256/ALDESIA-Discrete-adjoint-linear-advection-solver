@@ -49,6 +49,12 @@ class Aldesia
     /// linear equation solver's paramters
     double omega, tol, maxIter;
 
+    /// the bounding box of initial non-zero S area
+    double boxXmin = 0.0, boxXmax = 0.0, boxYmin = 0.0, boxYmax = 0.0;
+
+    /// decide if we want to solve the adjoint
+    bool solvePrimalOnly = false;
+
     /// decide if we want to write the Jacobian and the gradient
     bool isWriteJac = false, isWriteGrad = false;
 
@@ -68,6 +74,10 @@ class Aldesia
 
     /// set the design variable
     void setDesignVariable(int oneDimesionalIndex, double val);
+
+    /// give a one-dimensional index, check if it is in the box
+    /// in which the user specifies non-zero S
+    bool isInBox(int oneDimensionalIndex);
 
     /// solve the PDE
     void solvePrimal();

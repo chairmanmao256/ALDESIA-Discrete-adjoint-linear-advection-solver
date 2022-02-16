@@ -28,3 +28,13 @@ volVectorField mesh::C()
 
     return center;
 }
+
+double mesh::getCellX(int i, int j)
+{
+    return xmin - dx/2.0 + double(i) * dx;
+}
+
+double mesh::getCellY(int i, int j)
+{
+    return ymin - dy/2.0 + double(j) * dy;
+}
