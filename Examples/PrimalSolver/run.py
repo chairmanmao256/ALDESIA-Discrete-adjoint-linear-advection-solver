@@ -1,8 +1,8 @@
 import pyALDESIA
 
 # specify the number of design variables
-nDV = 16
-DVList = [0.0] * 16
+nDV = 10000
+DVList = [0.0] * 10000
 
 # initialize ALDESIA
 solver = pyALDESIA.ALDESIA(b'input.ini')

@@ -34,4 +34,6 @@ make all
 cd ..
 
 # link all the objs and compile the main program
+cd Aldesia
 make all
+cd ..

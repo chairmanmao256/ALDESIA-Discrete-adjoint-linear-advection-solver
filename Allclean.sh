@@ -26,4 +26,6 @@ cd AdjointSolver
 make clean
 cd ..
 
+cd Aldesia
 make clean
+cd ..

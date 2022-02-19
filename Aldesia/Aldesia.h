@@ -5,20 +5,20 @@
 #include <string>
 #include <map>
 #include <codi.hpp>
-#include "config/ConfigMap.h"
-#include "field/volScalarField.h"
-#include "field/volVectorField.h"
-#include "field/mesh.h"
-#include "Solver/CDSolver.h"
-#include "writer/writePlt.h"
-#include "writer/writeJac.h"
-#include "Residual/CDSolverResidual.h"
-#include "ObjFuncs/DerivObj.h"
-#include "ObjFuncs/objFuncs.h"
-#include "ObjFuncs/objFuncAvgT.h"
-#include "ObjFuncs/objFuncSourceSum.h"
-#include "ObjFuncs/selector.h"
-#include "AdjointSolver/AdjointSolver.h"
+#include "../config/ConfigMap.h"
+#include "../field/volScalarField.h"
+#include "../field/volVectorField.h"
+#include "../field/mesh.h"
+#include "../Solver/CDSolver.h"
+#include "../writer/writePlt.h"
+#include "../writer/writeJac.h"
+#include "../Residual/CDSolverResidual.h"
+#include "../ObjFuncs/DerivObj.h"
+#include "../ObjFuncs/objFuncs.h"
+#include "../ObjFuncs/objFuncAvgT.h"
+#include "../ObjFuncs/objFuncSourceSum.h"
+#include "../ObjFuncs/selector.h"
+#include "../AdjointSolver/AdjointSolver.h"
 
 using namespace std;
 

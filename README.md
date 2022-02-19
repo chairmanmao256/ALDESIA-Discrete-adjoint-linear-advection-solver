@@ -46,7 +46,18 @@ solver.solveDA("averageTempreture");
 
 For more details, please examine the source file of class `Aldesia`.
 
-## Compilation
+### `python` Wrapper
+
+`pyALDESIAdef.pxd` and `pyALDESIA.pyx` are two `cython` files that define the `python ` wrapper of ALDESIA. After correct installation of ALDESIA as an extension of `python`, one can use ALDESIA in a `python ` script by importing the package and instantiation an object of ALDESIA: (note that the construction of ALDESIA object in python also uses an `.ini` file)
+
+```python
+import pyALDESIA
+solver = pyALDESIA.ALDESIA(b'input.ini')
+```
+
+## Installation
+
+### Step 1: Compile the `C++` code
 
 It is tested that ALDESIA can be compiled in `Ubuntu-20.04 LTS` using `g++ 9.3.0`. After downloading the zip file of this repository and unzip it in a Linux system, the user can compile ALDESIA by typing the following command in your terminal:
 
@@ -55,6 +66,23 @@ It is tested that ALDESIA can be compiled in `Ubuntu-20.04 LTS` using `g++ 9.3.0
 ```
 
 After a successful compilation, the user can find `interface.out` in the directory.
+
+### Step 2: Install ALDESIA as an extension of `python`
+
+After activating the python virtual environment where you want to install ALDESIA, run the following command in the main directory of ALDESIA:
+
+```shell
+python setup.py install
+```
+
+To check if ALDESIA is correctly installed as an extension of `python`, run `python` in the terminal and type the following command:
+
+```python
+>>> import pyALDESIA
+>>> solver = pyALDESIA.ALDESIA(b"input.ini")
+```
+
+If the header and the problem description is correctly printed, ALDESIA is correctly installed.
 
 ## Examples
 
