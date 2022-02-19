@@ -6,6 +6,14 @@ cd field
 make clean
 cd ..
 
+cd Solver
+make clean
+cd ..
+
+cd writer
+make clean
+cd ..
+
 cd Residual
 make clean
 cd ..
