@@ -11,14 +11,14 @@
 
 using namespace std;
 
-void writePlt(volScalarField& T, volScalarField& nu, volScalarField& S, volVectorField& U, mesh& Mesh)
+void writePlt(volScalarField& T, volScalarField& nu, volScalarField& S, volVectorField& U, mesh& Mesh, std::string filename)
 {
     int nx = Mesh.getNx(), ny = Mesh.getNy();
     volVectorField center = Mesh.C();
 
     //open the file
     ofstream outfile;
-    outfile.open("result.plt", ios::out);
+    outfile.open(filename, ios::out);
 
     //write the header
     outfile<<"variables=x,y,u,v,T,nu,S\n";

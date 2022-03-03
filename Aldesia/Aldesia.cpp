@@ -246,7 +246,8 @@ double Aldesia::calcObj(string objName)
 void Aldesia::writePrimal()
 {
     #include "createRef.h"
-    writePlt(T_, nu_, S_, U_, Mesh_);
+    string filename = to_string(nSolvePrimals)+".plt";
+    writePlt(T_, nu_, S_, U_, Mesh_, filename);
 }
 
 void Aldesia::printHeader()

@@ -12,6 +12,6 @@ cdef extern from "Aldesia.h":
         bool isInBox(int oneDimensionalIndex) except+
         void solvePrimal() except+
         void solveDA(string objName) except+
-        void calcObj(string objName) except+
+        double calcObj(string objName) except+
         void writePrimal() except+
         void printHeader() except+
