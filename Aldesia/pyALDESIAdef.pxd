@@ -15,3 +15,4 @@ cdef extern from "Aldesia.h":
         double calcObj(string objName) except+
         void writePrimal() except+
         void printHeader() except+
+        double getGrad(int i) except+

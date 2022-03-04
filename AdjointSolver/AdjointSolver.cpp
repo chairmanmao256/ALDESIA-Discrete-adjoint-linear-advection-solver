@@ -10,8 +10,21 @@ volVectorField& U, mesh& Mesh, double tol, double omega, int maxIter, objFuncs& 
 {
     // initialize the SOR parameters
     double res = 1e4, valOld, valNew, product = 0.0, offDiag = 0.0;
-    int step = 0, nx = Mesh.getNx(), ny = Mesh.getNy();
+    int step = 0, nx = Mesh.getNx(), ny = Mesh.getNy(), num;
     double* lambda = new double [nx * ny];
+    double** dRdWSparse = new double* [5];
+    int** sparseIndex = new int* [5];
+
+    std::cout<<"Initializing sparse matrix...\n";
+    // initialize the sparse matrix
+    for (int i = 0; i < 5; i++){
+        dRdWSparse[i] = new double [nx * ny];
+        sparseIndex[i] = new int [nx * ny];
+        for (int j = 0; j < nx * ny; j++){
+            dRdWSparse[i][j] = 0.0;
+            sparseIndex[i][j] = -1;
+        }
+    }
 
     for (int i = 0; i < nx * ny; i++){lambda[i] = 0.1;}
 
@@ -22,10 +35,10 @@ volVectorField& U, mesh& Mesh, double tol, double omega, int maxIter, objFuncs& 
     // DA to compute its gradient
     if (obj.getIsDVOnly())
     {
-        cout<<"The objective depends on design variables only!\n";
-        cout<<"Aldesia uses reverse mode AD to calcluate gradient.\n";
+        std::cout<<"The objective depends on design variables only!\n";
+        std::cout<<"Aldesia uses reverse mode AD to calcluate gradient.\n";
         grad = calcdFdX(T, U, nu, S, Mesh, obj);
-        cout<<"Job finished!\n";
+        std::cout<<"Job finished!\n";
         return grad;
     }
 
@@ -63,6 +76,24 @@ volVectorField& U, mesh& Mesh, double tol, double omega, int maxIter, objFuncs& 
         writeJac(dFdX, dFdXFile);
     }
 
+    // set the sparse matrix
+    for (int i = 0; i < nx * ny; i++){
+        // set the diagnoals
+        dRdWSparse[0][i] = dRdW(i,i);
+        // set column index
+        sparseIndex[0][i] = i;
+
+        //set the off-diagnoals
+        num = 1;
+        for (int j = 0; j < nx * ny; j++){
+            if (abs(dRdW(j, i)) > 1e-12 && i != j){
+                dRdWSparse[num][i] = dRdW(j,i);
+                sparseIndex[num][i] = j;
+                num++;
+            }
+        }
+    }
+
     // solve the linear equation using SOR
 
     while(step < maxIter && res > tol){
@@ -71,8 +102,11 @@ volVectorField& U, mesh& Mesh, double tol, double omega, int maxIter, objFuncs& 
         for (int i = 0; i < nx * ny; i++){
 
             // add up all the off diagnoal terms
-            for (int j = 0; j < nx * ny; j++){
-                if (j != i) {offDiag += dRdW(j, i) * lambda[j];}  
+            for (int j = 1; j < 5; j++){
+                //if (j != i) {offDiag += dRdW(j, i) * lambda[j];}
+                if (sparseIndex[j][i]!=-1){
+                    offDiag += dRdWSparse[j][i] * lambda[sparseIndex[j][i]];
+                }  
             }
 
             // SOR iteration
@@ -84,13 +118,13 @@ volVectorField& U, mesh& Mesh, double tol, double omega, int maxIter, objFuncs& 
             offDiag = 0.0;
         }
         if(step % 100 == 0 || step == 1){
-            cout<<"Iteration step:   "<< step <<"\n";
-            cout<<"Adjoint Residual: "<< res << "\n";
-            cout<<"\n";
+            std::cout<<"Iteration step:   "<< step <<"\n";
+            std::cout<<"Adjoint Residual: "<< res << "\n";
+            std::cout<<"\n";
         }
     }
-    cout<<"Adjoint computation ends after "<<step<<" iterations.\n";
-    cout<<"The residual documented at last is: "<<res<<"\n";
+    std::cout<<"Adjoint computation ends after "<<step<<" iterations.\n";
+    std::cout<<"The residual documented at last is: "<<res<<"\n";
 
     // calculate the gradient
     for (int i = 0; i < nx * ny; i++){
@@ -107,6 +141,10 @@ volVectorField& U, mesh& Mesh, double tol, double omega, int maxIter, objFuncs& 
 
     // deallocate the space
     delete [] lambda;
+    for (int i = 0; i < 5; i++){
+        delete [] dRdWSparse[i];
+        delete [] sparseIndex[i];
+    }
 
     return grad;
 }

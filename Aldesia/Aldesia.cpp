@@ -215,7 +215,10 @@ void Aldesia::solveDA(string objName)
 
     // calculate the gradient of the function specified by the user
     objFuncs& obj_ = *objMap[objName];
-    if(!obj_.getIsDVOnly())  {nSolveAdjoints++;}
+    if(!obj_.getIsDVOnly()){
+        nSolveAdjoints++;
+        writePrimal();
+        }
 
     codi::Jacobian<double> gradJac = 
     solveAdjoint(T_, S_, nu_, U_, Mesh_, tol, omega, maxIter, obj_, isWriteJac);
@@ -246,8 +249,8 @@ double Aldesia::calcObj(string objName)
 void Aldesia::writePrimal()
 {
     #include "createRef.h"
-    string filename = to_string(nSolvePrimals)+".plt";
-    writePlt(T_, nu_, S_, U_, Mesh_, filename);
+    string filename = "./primalSol/"+to_string(nSolveAdjoints)+".plt";
+    writePlt(T_, nu_, S_, U_, Mesh_, filename, nSolveAdjoints);
 }
 
 void Aldesia::printHeader()
@@ -263,4 +266,9 @@ void Aldesia::printHeader()
     cout<<"|                                                          |"<<endl;
     cout<<"|                   Now, let's do our work!                |"<<endl;
     cout<<"+----------------------------------------------------------+"<<endl<<endl;
+}
+
+double Aldesia::getGrad(int i)
+{
+    return grad[i];
 }

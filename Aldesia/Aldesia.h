@@ -93,6 +93,9 @@ class Aldesia
 
     /// print the header
     void printHeader();
+
+    /// get the gradient
+    double getGrad(int i);
 };
 
 

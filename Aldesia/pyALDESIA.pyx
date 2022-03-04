@@ -39,3 +39,6 @@ cdef class ALDESIA:
 
     def printHeader(self):
         self.AldesiaPtr.printHeader()
+
+    def getGrad(self, int i):
+        return self.AldesiaPtr.getGrad(i)

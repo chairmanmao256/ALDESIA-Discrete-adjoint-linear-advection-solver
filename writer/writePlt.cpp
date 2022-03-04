@@ -11,7 +11,7 @@
 
 using namespace std;
 
-void writePlt(volScalarField& T, volScalarField& nu, volScalarField& S, volVectorField& U, mesh& Mesh, std::string filename)
+void writePlt(volScalarField& T, volScalarField& nu, volScalarField& S, volVectorField& U, mesh& Mesh, std::string filename, int zoneIndex)
 {
     int nx = Mesh.getNx(), ny = Mesh.getNy();
     volVectorField center = Mesh.C();
@@ -22,7 +22,8 @@ void writePlt(volScalarField& T, volScalarField& nu, volScalarField& S, volVecto
 
     //write the header
     outfile<<"variables=x,y,u,v,T,nu,S\n";
-    outfile<<" zone i="<<nx<<",j="<<ny<<",f=point\n";
+    outfile<<" zone T=\""<<zoneIndex<<"\""<<" i="<<nx<<",j="<<ny<<",f=point\n";
+    outfile<<" SOLUTIONTIME="<<zoneIndex<<"\n";
 
     //write the data
     for (int j = 1; j <= ny; j++){
