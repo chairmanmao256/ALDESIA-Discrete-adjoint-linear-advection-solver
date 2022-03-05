@@ -138,6 +138,7 @@ Aldesia::~Aldesia()
     // delete *objFuncs one by one
     delete objMap["averageTempreture"];
     delete objMap["souceSum"];
+    delete objMap["tempretureGradient"];
 }
 
 void Aldesia::setObjMap()
@@ -146,6 +147,7 @@ void Aldesia::setObjMap()
 
     objMap["averageTempreture"] = selector<objFuncAvgT>(T_, S_, nu_, U_, Mesh_);
     objMap["sourceSum"] = selector<objFuncSourceSum>(T_, S_, nu_, U_, Mesh_);
+    objMap["tempretureGradient"] = selector<objFuncTGradient>(T_, S_, nu_, U_, Mesh_);
 }
 
 void Aldesia::setDesignVariable(int oneDimensionalIndex, double val)
@@ -215,10 +217,6 @@ void Aldesia::solveDA(string objName)
 
     // calculate the gradient of the function specified by the user
     objFuncs& obj_ = *objMap[objName];
-    if(!obj_.getIsDVOnly()){
-        nSolveAdjoints++;
-        writePrimal();
-        }
 
     codi::Jacobian<double> gradJac = 
     solveAdjoint(T_, S_, nu_, U_, Mesh_, tol, omega, maxIter, obj_, isWriteJac);

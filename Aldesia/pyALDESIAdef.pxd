@@ -16,3 +16,4 @@ cdef extern from "Aldesia.h":
         void writePrimal() except+
         void printHeader() except+
         double getGrad(int i) except+
+        void updateSolveAdjoint() except+

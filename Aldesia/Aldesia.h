@@ -17,6 +17,7 @@
 #include "../ObjFuncs/objFuncs.h"
 #include "../ObjFuncs/objFuncAvgT.h"
 #include "../ObjFuncs/objFuncSourceSum.h"
+#include "../ObjFuncs/objFuncTGradient.h"
 #include "../ObjFuncs/selector.h"
 #include "../AdjointSolver/AdjointSolver.h"
 
@@ -96,6 +97,9 @@ class Aldesia
 
     /// get the gradient
     double getGrad(int i);
+
+    /// update the number of adjoint solve
+    void updateSolveAdjoint() {nSolveAdjoints++;}
 };
 
 

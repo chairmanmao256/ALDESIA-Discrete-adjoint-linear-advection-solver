@@ -20,8 +20,8 @@ solver.solvePrimal()
 # get the objVal
 objVal = solver.calcObj(b"averageTempreture")
 
-# write the primal solution
-solver.writePrimal()
-
 # solve the Discrete-Adjoint
 solver.solveDA(b"averageTempreture")
+
+# write the solution
+solver.writePrimal()

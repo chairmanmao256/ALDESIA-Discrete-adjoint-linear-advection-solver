@@ -42,3 +42,6 @@ cdef class ALDESIA:
 
     def getGrad(self, int i):
         return self.AldesiaPtr.getGrad(i)
+
+    def updateSolveAdjoint(self):
+        self.AldesiaPtr.updateSolveAdjoint()

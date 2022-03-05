@@ -28,4 +28,14 @@ cd ..
 
 cd Aldesia
 make clean
+rm -r build
+rm -r dist
+rm -r pyALDESIA_app.egg-info
+rm -r pyALDESIA.cpp
+cd ..
+
+cd optFuncs
+rm -r build
+rm -r dist
+rm -r optFuncs.egg-info
 cd ..

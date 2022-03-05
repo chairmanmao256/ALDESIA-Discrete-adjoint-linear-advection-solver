@@ -34,6 +34,13 @@ make all
 cd ..
 
 # link all the objs and compile the main program
+# cythonize Aldesia
 cd Aldesia
 make all
+python setup.py install
+cd ..
+
+# install the optimization utilities
+cd optFuncs
+python setup.py install
 cd ..
