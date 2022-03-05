@@ -14,5 +14,6 @@ run.sh
 pyALDESIA.cpython-37m-x86_64-linux-gnu.so
 pyALDESIA.cpp
 pyALDESIA_app.egg-info
+optFuncs.egg-info
 build
 dist
