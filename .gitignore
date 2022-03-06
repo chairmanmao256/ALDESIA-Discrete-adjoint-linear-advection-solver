@@ -3,6 +3,7 @@
 *.dat
 *.plt
 *.txt
+*.hst
 *.ipynb
 .vscode
 ADTest

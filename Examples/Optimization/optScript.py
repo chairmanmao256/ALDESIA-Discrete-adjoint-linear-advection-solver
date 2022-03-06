@@ -24,10 +24,10 @@ objFuncDict = {
             "name": "averageTempreture",
             "scale": -1.0,
         },
-        # "part2":{
-        #     "name": "tempretureGradient",
-        #     "scale": 1.0,
-        # }
+        "part2":{
+            "name": "tempretureGradient",
+            "scale": 0.1,
+        }
     },
     "constraints":{
         "part1":{
@@ -70,7 +70,7 @@ optOptions = {
 opt = SNOPT(options = optOptions)
 
 #solve the problem
-sol = opt(optProb, sens = optFuncs.sens)
+sol = opt(optProb, sens = optFuncs.sens, storeHistory="snopt_hist.hst")
 
 #check the solution
 print(sol)
