@@ -4,11 +4,11 @@
 
 ALDESIA is a toy program written by `C++` that aims to guide the undergraduate students into the colorful world of CFD and Discrete-Adjoint method. ALDESIA can solve linear convection-diffusion problem and its adjoint. ALDESIA relies on `CodiPack` and `IniReader`.
 
-As far as the author know, mastering CFD is not simple, not to mention understanding the Discrete-Adjoint algorithm that generate the gradient of a function defined by CFD. Popular software that deals with CFD and Discrete-Adjoint method appears to be to difficult for beginners to understand due to the huge volume of its code and the complexity of the problem it aims to solve. 
+As far as the author know, mastering CFD is not simple, not to mention understanding the Discrete-Adjoint algorithm that generates the gradient of a function defined by CFD. Popular software dealing with CFD and Discrete-Adjoint method appears to be too difficult for beginners to understand due to the huge volume of code and the complexity of the problem the software aims to solve. 
 
-Different from the software mentioned above, ALDESIA solves simple problem (convection-diffusion problem, definitely not the kind of problem that can be written into an academic journal) and has only about 1600 lines of code (codes in `CodiPack`and `iniReader` are not counted). The author of ALDESIA believes that its simplicity can help the students who have weak or no background in CFD and Discrete-Adjoint take the very first steps in their scientific career and cultivate their interest in CFD and Aerodynamic Optimization.
+Different from the software mentioned above, ALDESIA solves simple problem (convection-diffusion problem, definitely not the kind of problem that can be written into an academic paper) and has only about 2000 lines of code (codes in `CodiPack`and `iniReader` are not counted). The author believes that ALDESIA's simplicity can help the students who have weak background in CFD and Discrete-Adjoint take the very first steps in their CFD career and cultivate their interest in CFD and Aerodynamic Optimization.
 
-ALDESIA is written by Wcy, School of Aerospace engineering, Tsinghua University. ALDESIA is certainly not perfect and bunch of flaws definitely exist since the author is also new in CFD and Discrete-Adjoint. Contact the author by sending emails to wucy18@mails.tsinghua.edu.cn if you have any suggestions to improve the performance of ALDESIA. 
+ALDESIA is written by Wcy, School of Aerospace engineering, Tsinghua University. ALDESIA is certainly not perfect and bunch of flaws definitely exist since the author is also new in CFD and Discrete-Adjoint. If you have any suggestions to improve the performance of ALDESIA, you can contact the author by sending emails to wucy18@mails.tsinghua.edu.cn. 
 
 ## Features
 
@@ -18,7 +18,7 @@ ALDESIA can now solve convection-diffusion problem in a 2-D rectangular domain u
 
 ![](./pictures/c-dEq.svg)
 
-The Jacobian of the convection-diffusion problem solver (primal) solver is derived by using `CoDiPack` auto-differentiation tool-kit with graph-coloring. The partial derivative of the objective function is also computed by the reverse-mode auto-differentiation of `CoDiPack`.  ALDESIA can solve the adjoint of the primal solver using the Jacobians and the derivatives derived:
+The Jacobian of the convection-diffusion problem solver (primal solver) is derived by the forward-mode auto-differentiation using `CoDiPack`  with graph-coloring. The Jacobian of the objective function is computed by the reverse-mode auto-differentiation of `CoDiPack`.  ALDESIA can solve the adjoint of the primal solver using the Jacobians derived:
 
 ![](./pictures/AdjEq.svg)
 
@@ -28,7 +28,7 @@ All linear equations in ALDESIA are now solved by naïve SOR algorithm.
 
 ### Programming features
 
-ALDESIA is objective-oriented. All functions are integrated into the class `Aldesia` as its methods. An input file that defines the problem the user want to solve is needed to initialize an object of `Aldesia` (examples of the input file can be found in the `Example` directory):
+ALDESIA is objective-oriented. All functions are integrated into the class `Aldesia` as its methods. An input file that defines the problem is needed to initialize an object of `Aldesia` (examples of the input file can be found in the `Example` directory):
 
 ```c++
 std::string filename = {"input.ini"};
@@ -48,7 +48,7 @@ For more details, please examine the source file of class `Aldesia`.
 
 ### `python` Wrapper
 
-`pyALDESIAdef.pxd` and `pyALDESIA.pyx` are two `cython` files that define the `python ` wrapper of ALDESIA. After correct installation of ALDESIA as an extension of `python`, one can use ALDESIA in a `python ` script by importing the package and instantiation an object of ALDESIA: (note that the construction of ALDESIA object in python also uses an `.ini` file)
+`pyALDESIAdef.pxd` and `pyALDESIA.pyx` are two `cython` files that define the `python` wrapper of ALDESIA. After correct installation of ALDESIA as an extension of `python`, one can use ALDESIA in a `python` script by importing the package and instantiating an object of ALDESIA: (note that the instantiation of ALDESIA object in python also uses an `.ini` file)
 
 ```python
 import pyALDESIA
@@ -57,9 +57,9 @@ solver = pyALDESIA.ALDESIA(b'input.ini')
 
 ## Installation
 
-It is tested that ALDESIA can be compiled in `Ubuntu-20.04 LTS` using `g++ 9.3.0`. Moreover, `conda` environment with `cython`, `numpy` and `setuptools` is also needed (to cythonize ALDESIA). To run the optimization, you also have to install `pyoptsparse` in your `conda` environment.
+It is tested that ALDESIA can be compiled on `Ubuntu-20.04 LTS` using `g++ 9.3.0`. Moreover, `conda` environment with `cython`, `numpy` and `setuptools` is also needed (to cythonize ALDESIA). To run the optimization, you have to install `pyoptsparse` in your `conda` environment.
 
-If your system meets the requirement listed above successfully, you can compile ALDESIA easily. Download the zip file of this repository and `unzip` it in a Linux system, `cd` to the destination you `unzip` ALDESIA and type the following command in your terminal:
+If your system meets the requirements listed above, you can compile ALDESIA easily. Download the zip file of this repository and `unzip` it in a Linux system, `cd` to the destination you `unzip` ALDESIA and type the following command in your terminal:
 
 ```shell
 ./Allmake.sh
@@ -77,7 +77,7 @@ Then ALDESIA is compiled and installed as a python extension on the `conda` envi
 python run.py
 ```
 
-After pressing the enter key, ALDESIA will run the primal solver. The result will be stored in `0.plt` in the `primalSol` directory. If you copy the hole case file to windows system after running ALDESIA, you can pen `postProcessing.lay` using Tecplot for post-processing.
+After pressing the enter key, ALDESIA will run the primal solver. The result will be stored in `0.plt` in the `primalSol` directory. If you copy the hole case file to windows system after running ALDESIA, you can open `postProcessing.lay` using Tecplot for post-processing.
 
 The picture below is the phi distribution generated by ALDESIA's primal solver. The boundary value of phi is set to zero and there's a source located at the center of the domain. The velocity points in south-east direction.
 
@@ -103,7 +103,7 @@ Then ALDESIA will solve both the primal and the adjoint on a 4-times-4 grid. The
   |- 0.plt
 ```
 
-The first four files are the Jacobians and the last `.dat` file is the gradient of average temperature with respect to the distribution of the source. The `.plt` file stores the outcome of the primal solver.
+The first four files are the Jacobians and the `gradient.dat` file stores the gradient of average temperature with respect to the distribution of the source. The `.plt` file stores the result of the primal solver.
 
 ## Solve the optimization problem
 
@@ -115,10 +115,10 @@ The first four files are the Jacobians and the last `.dat` file is the gradient 
 python optScript.py
 ```
 
-Then ALDESIA will solve a optimization problem to maximize the average temperature of the domain under the following constraint:
+Then ALDESIA will solve an optimization problem to maximize the average temperature of the domain under the following constraint:
 
 ![](./pictures/constraints.svg)
 
-where S(x, y) is the distribution of heat source and s is a positive number. The final distribution of heat source and temperature is shown below:
+where S(x, y) is the distribution of heat source and s is a positive number. The initial and optimized distribution of temperature and heat source is shown below:
 
 ![](/pictures/optimization.png)
