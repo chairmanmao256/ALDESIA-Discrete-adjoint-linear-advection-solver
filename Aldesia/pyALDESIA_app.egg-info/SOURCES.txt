@@ -1,0 +1,7 @@
+pyALDESIA.cpp
+setup.py
+pyALDESIA_app.egg-info/PKG-INFO
+pyALDESIA_app.egg-info/SOURCES.txt
+pyALDESIA_app.egg-info/dependency_links.txt
+pyALDESIA_app.egg-info/not-zip-safe
+pyALDESIA_app.egg-info/top_level.txt

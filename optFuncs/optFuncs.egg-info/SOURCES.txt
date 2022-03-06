@@ -1,0 +1,6 @@
+optFuncs.py
+setup.py
+optFuncs.egg-info/PKG-INFO
+optFuncs.egg-info/SOURCES.txt
+optFuncs.egg-info/dependency_links.txt
+optFuncs.egg-info/top_level.txt
