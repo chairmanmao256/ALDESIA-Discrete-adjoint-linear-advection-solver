@@ -105,7 +105,7 @@ Then ALDESIA will solve both the primal and the adjoint on a 4-times-4 grid. The
 
 The first four files are the Jacobians and the `gradient.dat` file stores the gradient of average temperature with respect to the distribution of the source. The `.plt` file stores the result of the primal solver.
 
-## Solve the optimization problem
+### Solve the optimization problem
 
 **To run this case, you have to install `pyoptsparse` in the `conda` environment where you installed ALDESIA!**
 
