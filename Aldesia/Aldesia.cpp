@@ -139,6 +139,7 @@ Aldesia::~Aldesia()
     delete objMap["averageTempreture"];
     delete objMap["souceSum"];
     delete objMap["tempretureGradient"];
+    delete objMap["tempretureVariance"];
 }
 
 void Aldesia::setObjMap()
@@ -148,6 +149,7 @@ void Aldesia::setObjMap()
     objMap["averageTempreture"] = selector<objFuncAvgT>(T_, S_, nu_, U_, Mesh_);
     objMap["sourceSum"] = selector<objFuncSourceSum>(T_, S_, nu_, U_, Mesh_);
     objMap["tempretureGradient"] = selector<objFuncTGradient>(T_, S_, nu_, U_, Mesh_);
+    objMap["tempretureVariance"] = selector<objFuncTVariance>(T_, S_, nu_, U_, Mesh_);
 }
 
 void Aldesia::setDesignVariable(int oneDimensionalIndex, double val)

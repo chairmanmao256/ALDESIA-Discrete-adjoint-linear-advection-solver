@@ -25,8 +25,8 @@ objFuncDict = {
             "scale": -1.0,
         },
         "part2":{
-            "name": "tempretureGradient",
-            "scale": 0.1,
+            "name": "tempretureVariance",
+            "scale": 6.0,
         }
     },
     "constraints":{

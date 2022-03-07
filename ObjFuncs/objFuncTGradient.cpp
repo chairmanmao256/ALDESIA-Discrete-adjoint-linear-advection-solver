@@ -17,7 +17,8 @@ void objFuncTGradient::calcObjVal()
             }
             else
             {
-                grady = ((*TPtr)[i][j+1] - (*TPtr)[i][j-1])/(2 * dy);
+                // grady = ((*TPtr)[i][j+1] - (*TPtr)[i][j-1])/(2 * dy); // central difference will induce jumping gradient
+                grady = ((*TPtr)[i][j] - (*TPtr)[i][j-1])/dy;
             }
 
             // calculate x component
@@ -29,7 +30,8 @@ void objFuncTGradient::calcObjVal()
             }
             else
             {
-                gradx = ((*TPtr)[i+1][j] - (*TPtr)[i-1][j])/(2 * dx);
+                //gradx = ((*TPtr)[i+1][j] - (*TPtr)[i-1][j])/(2 * dx); // central difference will induce jumping gradient
+                gradx = ((*TPtr)[i][j] - (*TPtr)[i-1][j])/dx;
             }
 
             objVal += (gradx * gradx + grady * grady) * vol;
@@ -60,7 +62,8 @@ void objFuncTGradient::evalObjForAD(RealR* xW, RealR* xX, RealR* y)
         }
         else
         {
-            grady = (xW[ii - 1 + jj*nx] - xW[ii - 1 + (jj - 2)*nx]) / (2 * dy);
+            //grady = (xW[ii - 1 + jj*nx] - xW[ii - 1 + (jj - 2)*nx]) / (2 * dy); // central difference leads to jumping gradient
+            grady = (xW[i] - xW[ii-1+(jj-2)*nx]) / dy;
         }
 
         // calculate the x component
@@ -72,7 +75,8 @@ void objFuncTGradient::evalObjForAD(RealR* xW, RealR* xX, RealR* y)
         }
         else
         {
-            gradx = (xW[ii+(jj-1)*nx] - xW[ii-2+(jj-1)*nx]) / (2 * dx);
+            // gradx = (xW[ii+(jj-1)*nx] - xW[ii-2+(jj-1)*nx]) / (2 * dx); // central difference leads to jumping gradient
+            gradx = (xW[i] - xW[ii-2+(jj-1)*nx]) / dx;
         }
         y[0] += (gradx * gradx + grady * grady) * vol;
     }

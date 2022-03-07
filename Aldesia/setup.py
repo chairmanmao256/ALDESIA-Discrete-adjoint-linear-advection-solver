@@ -29,6 +29,7 @@ ext = [
          '../ObjFuncs/objFuncAvgT.o',
          '../ObjFuncs/objFuncSourceSum.o',
          '../ObjFuncs/objFuncTGradient.o',
+         '../ObjFuncs/objFuncTVariance.o',
          '../Residual/CDSolverResidual.o',
          '../Solver/CDSolver.o',
          '../writer/writeJac.o',

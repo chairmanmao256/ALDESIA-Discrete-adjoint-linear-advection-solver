@@ -1,4 +1,4 @@
-all: DerivObj.o objFuncs.o objFuncAvgT.o objFuncSourceSum.o objFuncTGradient.o
+all: DerivObj.o objFuncs.o objFuncAvgT.o objFuncSourceSum.o objFuncTGradient.o objFuncTVariance.o
 
 DerivObj.o: DerivObj.cpp DerivObj.h
 	g++ -c -fPIC -I ../CoDiPackModule/include -std=c++11 -g DerivObj.cpp -o DerivObj.o
@@ -14,6 +14,9 @@ objFuncSourceSum.o: objFuncSourceSum.cpp objFuncSourceSum.h objFuncs.h
 
 objFuncTGradient.o: objFuncTGradient.cpp objFuncTGradient.h objFuncs.h
 	g++ -c -fPIC -I ../CoDiPackModule/include -std=c++11 -g objFuncTGradient.cpp -o objFuncTGradient.o
+
+objFuncTVariance.o: objFuncTVariance.cpp objFuncTVariance.h objFuncs.h
+	g++ -c -fPIC -I ../CoDiPackModule/include -std=c++11 -g objFuncTVariance.cpp -o objFuncTVariance.o
 
 clean:
 	rm *.o

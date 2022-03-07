@@ -18,6 +18,7 @@
 #include "../ObjFuncs/objFuncAvgT.h"
 #include "../ObjFuncs/objFuncSourceSum.h"
 #include "../ObjFuncs/objFuncTGradient.h"
+#include "../ObjFuncs/objFuncTVariance.h"
 #include "../ObjFuncs/selector.h"
 #include "../AdjointSolver/AdjointSolver.h"
 
